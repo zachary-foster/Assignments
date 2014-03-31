@@ -1,0 +1,68 @@
+#NEXUS 
+
+Begin trees;  [Treefile saved Thu Feb 27 23:05:10 2014]
+[!
+>Data file = proteinCodingAligned
+>Heuristic search settings:
+>  Optimality criterion = parsimony
+>    Character-status summary:
+>      Of 630 total characters:
+>        All characters are of type 'unord'
+>        All characters have equal weight
+>        283 characters are constant
+>        61 variable characters are parsimony-uninformative
+>        Number of parsimony-informative characters = 286
+>    Gaps are treated as "missing"
+>    Multistate taxa interpreted as uncertainty
+>  Starting tree(s) obtained via stepwise addition
+>    Addition sequence: simple (reference taxon = outgroup 1)
+>    Number of trees held at each step = 1
+>  Branch-swapping algorithm: tree-bisection-reconnection (TBR) with reconnection limit = 8
+>    Steepest descent option not in effect
+>  Initial 'Maxtrees' setting = 100
+>  Branches collapsed (creating polytomies) if maximum branch length is zero
+>  'MulTrees' option in effect
+>  No topological constraints in effect
+>  Trees are unrooted
+>
+>Heuristic search completed
+>  Total number of rearrangements tried = 93260
+>  Score of best tree(s) found = 2136
+>  Number of trees retained = 4
+>  Time used = 0.06 sec (CPU time = 0.06 sec)
+]
+	Translate
+		1 outgroup_1,
+		2 outgroup_2,
+		3 Archostemata_1,
+		4 Archostemata_2,
+		5 Geadephaga_1,
+		6 Geadephaga_10,
+		7 Geadephaga_11,
+		8 Geadephaga_12,
+		9 Geadephaga_2,
+		10 Geadephaga_3,
+		11 Geadephaga_4,
+		12 Geadephaga_5,
+		13 Geadephaga_6,
+		14 Geadephaga_7,
+		15 Geadephaga_8,
+		16 Geadephaga_9,
+		17 Hydradephaga_1,
+		18 Hydradephaga_2,
+		19 Hydradephaga_3,
+		20 Hydradephaga_4,
+		21 Hydradephaga_5,
+		22 Hydradephaga_6,
+		23 Hydradephaga_7,
+		24 Hydradephaga_8,
+		25 Polyphaga_1,
+		26 Polyphaga_2,
+		27 Polyphaga_3,
+		28 Polyphaga_4
+		;
+tree PAUP_1 = [&U] (1,2,((((((((((((((3,4),23),((19,22),(27,28))),18),(((17,20),21),24)),8),10),(((7,11),15),(9,14))),(5,12)),6),16),13),25),26));
+tree PAUP_2 = [&U] (1,2,((((((((((((((3,4),((19,22),(27,28))),23),18),(((17,20),21),24)),8),10),(((7,11),15),(9,14))),(5,12)),6),16),13),25),26));
+tree PAUP_3 = [&U] (1,2,((((((((((((((3,4),23),((19,22),(27,28))),18),(((17,20),21),24)),8),10),(((7,11),15),(9,14))),(5,12)),16),6),13),25),26));
+tree PAUP_4 = [&U] (1,2,((((((((((((((3,4),((19,22),(27,28))),23),18),(((17,20),21),24)),8),10),(((7,11),15),(9,14))),(5,12)),16),6),13),25),26));
+End;

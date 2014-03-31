@@ -1,0 +1,21 @@
+{
+    "contents" : "",
+    "created" : 1394217255911.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "BEC54983",
+    "lastKnownWriteTime" : 32370056113422337,
+    "path" : null,
+    "properties" : {
+        "caption" : "data",
+        "contentUrl" : "content?title=data&file=dc8cfc8090d34999b23822de178f4612.htm",
+        "displayedObservations" : "54",
+        "displayedVariables" : 13,
+        "totalObservations" : "54",
+        "variables" : "13"
+    },
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

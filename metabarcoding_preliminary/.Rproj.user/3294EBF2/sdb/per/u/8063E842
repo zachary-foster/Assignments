@@ -1,0 +1,16 @@
+{
+    "contents" : "library(ggplot2)\n\ndata <- read.table(\"dna_extraction_concentration.txt\", sep=\"\\t\", header=TRUE)\nggplot(data, aes(x=Sample.Weight, y=Nucleic.Acid.Conc., color=Sample.ID)) +\n  geom_point(shape=1)   # Add linear regression line \n#  (by default includes 95% confidence region)\n",
+    "created" : 1394216993068.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "3210519490",
+    "id" : "8063E842",
+    "lastKnownWriteTime" : 32370056120303730,
+    "path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
