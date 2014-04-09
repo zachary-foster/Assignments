@@ -1,0 +1,66 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[margin=2cm]{geometry}
+\usepackage[backend=bibtex]{biblatex}
+
+\def\referencepath{../../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{(\citeauthor{#1}, \citeyear{#1})\textsuperscript{\cite{#1}}}
+
+\addbibresource{\referencepath}
+
+\title{Class Project Proposals}
+\author{Zachary Foster}
+\date{\today}
+
+<<setup, include=FALSE>>=
+#R library imports
+library(knitr)
+library(xtable)
+# set global chunk options
+opts_chunk$set(fig.align='center', 
+               fig.show='asis', 
+               fig.lp="", 
+               error=FALSE, 
+               cach=FALSE, 
+               dpi=600, 
+               include=FALSE, 
+               echo=FALSE, 
+               tidy=TRUE, 
+               out.width=".9\\linewidth", 
+               fig.width = 8, 
+               external=FALSE, 
+               results='markup',
+               message=FALSE)
+#read_chunk('insert file name here for code externalization ')
+@
+
+\begin{document}
+
+\maketitle
+
+\paragraph{}
+I am currently working on a metabarcoding project, focusing on the protist and fungal communinities of nusery rhododendron roots. I am particulary insterested in the relationship between the health of plants and the presence/abundance of putative pathogens, particulary oomycetes such as those of the typically pathogenic genus \textit{Phytophthora}. There are three goals of my work that my class project could be on. Im not sure which would be most approportiate, if any. As my work is metabarcoding, and not metagenomics (yet), I am concerned that my research might not align with the genomic focus of thte class. If this is the case, I might be able to alter my research design to add some metagenomics or explore some already produced metagenomic data relevant my research.
+
+\section{PNA clamp design}
+\paragraph{}
+Peptide nulceic acids (PNAs) are DNA-like polymers of nitrogenous bases connected by a protein-like backbone instead of a sugar-phosphate backbone as is found in DNA. They typically hybridize with complementary DNA stronger and at a higher melting temperature than DNA of the same sequence, with some execptions \mycite{nielsen_peptide_2001}. This property, along with the inability of DNA polymerase to extend them, makes them useful for sequence-specific inhibition of PCR. I hope to take advantage of this property in my metabarcoding projects to inhibit the amplification of non-target DNA particulary that of the host plant \mycite{lundberg_practical_2013}. PNAs used in this way must be designed not to inhibit target organisms. \citeauthor{lundberg_practical_2013} proposes doing this by BLASTing K-mers of barcode sequence to be inhibited against a database of target taxa and choosing locations (typically 10-20bp) in which there are no matches as potential PNA sequences for inhibiton. 
+
+
+
+\section{Taxon-specific clustering threshold optimization}
+\paragraph{}
+
+\section{PNA Clamp Design}
+\paragraph{}
+
+
+\printbibliography
+\end{document}
