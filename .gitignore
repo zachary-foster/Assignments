@@ -1,3 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
+*.bib
+*.bbl
+*.pdf
+*.run.xml
