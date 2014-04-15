@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[margin=2cm]{geometry}
+\usepackage[backend=bibtex]{biblatex}
+
+\def\referencepath{../../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{(\citeauthor{#1}, \citeyear{#1})\textsuperscript{\cite{#1}}}
+
+\addbibresource{\referencepath}
+
+\title{Class Project Proposals}
+\author{Zachary Foster}
+\date{\today}
+
+<<setup, include=FALSE>>=
+#R library imports
+library(knitr)
+library(xtable)
+# set global chunk options
+opts_chunk$set(fig.align='center', 
+               fig.show='asis', 
+               fig.lp="", 
+               error=FALSE, 
+               cach=FALSE, 
+               dpi=600, 
+               include=FALSE, 
+               echo=FALSE, 
+               tidy=TRUE, 
+               out.width=".9\\linewidth", 
+               fig.width = 8, 
+               external=FALSE, 
+               results='markup',
+               message=FALSE)
+#read_chunk('insert file name here for code externalization ')
+@
+
+\begin{document}
+
+\maketitle
+
+\paragraph{}
+I am currently working on a metabarcoding project, focusing on the protist and fungal communities of nursery rhododendron roots. I am particularly interested in the relationship between the health of plants and the presence/abundance of putative pathogens, particularly oomycetes such as those of the typically pathogenic genus \textit{Phytophthora}. There are a couple goals of my work that my class project could be on. I'm not sure which would be most appropriate, if any. As my work is metabarcoding, and not metagenomics (yet), I am concerned that my research might not align with the genomic focus of the class. If this is the case, I might be able to alter my research design to add some metagenomics or explore some already produced metagenomic data relevant my research.
+
+\section{PNA clamp design}
+\paragraph{}
+Peptide nucleic acids (PNAs) are DNA-like polymers of nitrogenous bases connected by a protein-like backbone instead of a sugar-phosphate backbone as is found in DNA. They typically hybridize with complementary DNA stronger and at a higher melting temperature than DNA of the same sequence, with some exceptions \mycite{nielsen_peptide_2001}. This property, along with the inability of DNA polymerase to extend them, makes them useful for sequence-specific inhibition of PCR. I hope to take advantage of this property in my metabarcoding projects to inhibit the amplification of non-target DNA particularly that of the host plant \mycite{lundberg_practical_2013}. PNAs used in this way must be designed not to inhibit target organisms. \citeauthor{lundberg_practical_2013} proposes doing this by BLASTing K-mers of barcode sequence to be inhibited against a database of target taxa and choosing locations (typically 10-20bp) in which there are no matches as potential PNA sequences for inhibition. I would like to conduct this analysis on my system of study or make a program to do it given a barcode database and primer pair.
+
+\section{Taxon-specific barcoding gap and clustering threshold optimization}
+\paragraph{}
+In metabarcoding projects, OTUs are typically clustered by an relatively arbitrary percent identity threshold (or other distance/similarity measure), typically 95\% or 97\%. These thresholds typically represent the average inter-species distance within high-level taxa, such as fungi. Using barcode reference databases it is possible estimate the average inter-taxa distance as well as the average intra-taxon distance. For a given taxonomic level, the difference between the inter-taxa distance and the intra-taxon distance is known as the barcode gap. If positive, then it is possible to differentiate taxa based on the similarity measure used. I would like to used the R package Spider \mycite{brown_spider:_2012}, which provides functions for these type of analyses, to estimate the optimal (i.e. minimizing false positives plus false negatives) clustering threshold for each taxon at each taxonomic level and use it to hierarchically identify OTUs. The barcoding gap will also be calculated for each taxon at each taxonomic level and be used to provide a confidence measure for the assignment of each taxonomic level for each OTU. 
+
+\printbibliography
+\end{document}
