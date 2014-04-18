@@ -55,6 +55,16 @@ opts_chunk$set(fig.align='center',
 
 Dr. Muller suppiled us with contigs generated from a metagemoic assembly of DNA from a sample of marine water.
 The contigs are thought to be an undescribed lineage wihtin \textit{verrucomicrobia}.
+We used BLAST, GLIMMER, and web-based tools to idenitify ORFs within one of the contigs and pridict possible functions.
+
+Using an interpolated markov model supplied by the instructors, we used GLIMMER to pridict ORFs. 
+We used a custom \texttt{perl} script \texttt{parse_Glimmer.pl} to extract the amino acid sequence of the predicted ORFs.
+We then made a BLAST database, using sequences supplied by the instructors, and used the database to identify the ORFs. 4 ORFs were found, 2 of which return significant BLAST hits using an -e threshold of 0.01. 
+Each of the 2 ORFs with siginificant hits had one identical hit and two very weak hits. 
+We then used a custom \texttt{perl} script \texttt{grab_seq.pl} to exctract one of the ORFs with and identical hit to the reference database. 
+The extracted sequence was search aginst the genbank database using blastp with default settings.
+All of the significant alignments the resulted that had a functional annotaion were differnt types of sulfatases. 
+
 
 
 
