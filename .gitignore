@@ -6,3 +6,5 @@
 *.pdf
 *.run.xml
 *.tex
+*.gz
+*.log

@@ -49,18 +49,12 @@ opts_chunk$set(fig.align='center',
 
 \maketitle
 
-In order to test the effectiveness of \textit{de novo} assembly, we simulated short read data from a 100,000bp section of the Haemophilus influenzae Rd KW20 genome \cite{fleischmann_whole-genome_1995} provided by our instructor. 
-We explored the attributes of the sequence using \texttt{infoseq} from the EMBOSS tools \cite{olson_emboss_2002}.
-The total genome was 1,830,138bp in length and has a \%GC of 38.15.
-The custom perl script \texttt{sample\_suquence.pl} was used to extract the 100,000bp section between locations 100,000 and 200,000 of the genome.
-We used \texttt{grinder} to simulate 100bp paired-end reads with a 500bp insert size and an average coverage of 10.
-To assemble the simulated reads we used Velvet with a k-mer length of 33bp.
-The assembly resulted in 37 contigs with an average length of 2722bp and an N50 of 7731bp, determined using \texttt{python}.
-We then used \texttt{nucmer} from the MUMMER software package \cite{delcher_using_2002} to make a dotplot of the contigs against the genome they were derived from (Figure \ref{fig:dotplot}).
-The contigs were not sorted relative to their corresponding sequence in the part of the genome they were simulated from, so the dotplot is disorganized.
-However, since straight lines span the entire length of the reference sequence, we likely have assembled most of the original sequence. 
-We determined the average coverage of the contigs using a custom R script \texttt{velvet\_cp.R}. 
-Most of the contigs had coverage around 8bp and a few had significantly more or less (Figure \ref{fig:histogram}).
+
+
+
+
+
+
 
 
 
