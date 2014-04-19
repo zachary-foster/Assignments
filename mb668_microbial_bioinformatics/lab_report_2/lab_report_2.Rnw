@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -7,7 +7,7 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage[backend=bibtex]{biblatex}
-\usepackage[margin=2cm]{geometry}
+\usepackage[margin=3cm]{geometry}
 \usepackage{caption}
 \usepackage{subcaption}
 
@@ -19,7 +19,7 @@
 
 \addbibresource{\referencepath}
 
-\title{Lab Report 1}
+\title{Lab Report 2}
 \author{Zachary Foster}
 \date{\today}
 
@@ -50,43 +50,54 @@ opts_chunk$set(fig.align='center',
 \maketitle
 
 
-
-
-
-Dr. Muller suppiled us with contigs generated from a metagemoic assembly of DNA from a sample of marine water.
-The contigs are thought to be an undescribed lineage wihtin \textit{verrucomicrobia}.
-We used BLAST, GLIMMER, and web-based tools to idenitify ORFs within one of the contigs and pridict possible functions.
-
-Using an interpolated markov model supplied by the instructors, we used GLIMMER to pridict ORFs. 
-We used a custom \texttt{perl} script \texttt{parse_Glimmer.pl} to extract the amino acid sequence of the predicted ORFs.
+Dr. Muller supplied us with contigs generated from a metagenomic assembly of DNA from a sample of marine water.
+The contigs are thought to be an undescribed lineage within \textit{verrucomicrobia}.
+We used BLAST, GLIMMER, and web-based tools to identify ORFs within one of the contigs and predict possible functions.
+Using an interpolated Markov model supplied by the instructors, we used GLIMMER to predict ORFs. 
+We used a custom \texttt{perl} script \texttt{parse\_Glimmer.pl} to extract the amino acid sequence of the predicted ORFs.
 We then made a BLAST database, using sequences supplied by the instructors, and used the database to identify the ORFs. 4 ORFs were found, 2 of which return significant BLAST hits using an -e threshold of 0.01. 
-Each of the 2 ORFs with siginificant hits had one identical hit and two very weak hits. 
-We then used a custom \texttt{perl} script \texttt{grab_seq.pl} to exctract one of the ORFs with and identical hit to the reference database. 
-The extracted sequence was search aginst the genbank database using blastp with default settings.
-All of the significant alignments the resulted that had a functional annotaion were differnt types of sulfatases. 
+Each of the 2 ORFs with significant hits had one identical hit and two very weak hits. 
+We then used a custom \texttt{perl} script \texttt{grab\_seq.pl} to extract one of the ORFs with and identical hit to the reference database.
 
 
 
-
-
-
+The extracted sequence was search against the genbank nr database using blastp with default settings \ref{fig:blastp}.
+All of the hits were hypothetical proteins and only one was full length.  
+Next, a PSI blast search with 3 iterations, using default parameters, was used in order to discover more distantly related putative homologs.
+This revealed many more full length matches, but all were still hypothetical proteins \ref{fig:psi-blast}.
+We used the COG and CCD databases to search for conserved domains using default parameters. 
+The COG database search returned a hit to a chromosome segregation ATPase \ref{fig:cog}, but the CCD databases search did not return any hits with known function \ref{fig:ccd}
+Finally, we searched pfam in order to detect any protein families that the unknown sequence may be a part of, but this to return no significant result with known function. The 2 hits that were found were of unknown function \ref{fig:pfam}. From all of the analyses overall, it appears that this ORF is ether a novel protein that has not been assigned a function yet, or a conserved sequence susceptible to misassignment by automatic \textit{ab inito} gene annotating program, since there are many hits to multiple databases, but little functional information. The one significant hit with functional information was a chromosome segregation ATPase. but this alone is not sufficient evidence to predict the function of this unknown sequence. 
 
 \begin{figure}[ht]
-\centering
-\begin{minipage}{.45\textwidth}
   \centering
-  \includegraphics[width=.7\linewidth]{dotplot}
-  \captionof{figure}{Dot plot of contigs vs. the sequence they were derived from. }
-  \label{fig:dotplot}
-\end{minipage}%
-\hspace{10pt}%
-\begin{minipage}{.45\textwidth}
-  \centering
-  \includegraphics[width=.7\linewidth]{coverage_hist}
-  \captionof{figure}{Distribution of contig average coverage.}
-  \label{fig:histogram}
-\end{minipage}%
+  \includegraphics[width=\linewidth]{blastp}
+  \captionof{figure}{Screenshot of blastp results}
+  \label{fig:blastp}
 \end{figure}
+\begin{figure}[ht]
+  \includegraphics[width=\linewidth]{psi_blast}
+  \captionof{figure}{Screenshot of PSI-BLAST results}
+  \label{fig:psi-blast}
+\end{figure}
+
+\begin{figure}[ht]
+  \includegraphics[width=\linewidth]{cog}
+  \captionof{figure}{Screenshot of COG search results.}
+  \label{fig:cog}
+\end{figure}
+\begin{figure}[ht]
+  \includegraphics[width=\linewidth]{ccd}
+  \captionof{figure}{Screenshot of CCD search results}
+  \label{fig:ccd}
+\end{figure}
+\begin{figure}[ht]
+  \includegraphics[width=\linewidth]{pfam}
+  \captionof{figure}{Screenshot of pfam results}
+  \label{fig:pfam}
+\end{figure}
+
+
 
 \printbibliography
 
