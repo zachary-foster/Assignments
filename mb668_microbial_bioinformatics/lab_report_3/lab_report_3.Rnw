@@ -1,0 +1,15 @@
+I decided to explore the structure of 354aa long protein of unknown frunction from \textit{Pelagibacter} strain 7214 using a varitiy of structural prediction methods.
+I submitted the unknown sequence to the Phyre2 server using the normal mode. 
+I also submitted the seuqnece to SWISS-MODEL using the \texttt{Build Model} function. 
+
+ITASSER:
+The sequence has been successfully submitted to the I-TASSER server. Your job id number is S177125. You will be notified by email once the job is completed. The results of structure and function predictions for your submitted sequence will be available at (You may bookmark this link for your convenience of future visit): http://zhanglab.ccmb.med.umich.edu/I-TASSER/output/S177125/.
+
+Your submitted sequence is of 354 residues:
+>Candidatus_Pelagibacter_ubique_protein_of_unknown_function
+MRYLKYLDIHGFPVKKTPNNKIKLLKQEKIYLFSKFKRRFDICLSLPTFDLIKNFYNDKI
+LEEYYLDKLRTIKFFFSFKIHFKLLAILNYFLFPKKIINLNNTDIVLFGPYSHSYSHSLH
+EFFTRLIFLKKKNKKFNVFLPKTLKKILSSKTYKLIFSKKNFNFKFFDTDTDIEFKNCNY
+LTHPNNRWVIKGKKKKISNEYRYLMNELRKEVTKNKILGQKKSNAKYILVSRSNALRRRL
+LNEDELFNQLKKYGFKKVFFENLSYEKQVELSMNCKIMIGYHGAGLTNLIFMKKKSHLIE
+IYNKHYEHEHFKLFSMCQKIKYKNFQCKENKKNLDGVCDIQEIKNYIINIKKKD
