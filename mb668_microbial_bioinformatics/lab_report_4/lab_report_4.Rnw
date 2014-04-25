@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage[margin=2cm, top=1cm]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\def\referencepath{../../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{(\citeauthor{#1} \citeyear{#1})}
+
+\addbibresource{\referencepath}
+
+
+<<setup, include=FALSE>>=
+#R library imports
+library(knitr)
+library(xtable)
+# set global chunk options
+opts_chunk$set(fig.align='center', 
+               fig.show='asis', 
+               fig.lp="", 
+               error=FALSE, 
+               cach=FALSE, 
+               dpi=600, 
+               include=FALSE, 
+               echo=FALSE, 
+               tidy=TRUE, 
+               out.width=".9\\linewidth", 
+               fig.width = 8, 
+               external=FALSE, 
+               results='markup',
+               message=FALSE)
+#read_chunk('insert file name here for code externalization ')
+@
+
+
+\title{Lab Report 4}
+\author{Zachary Foster}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{minipage}[b]{0.6\linewidth}
+
+We acquired 454 reads from 16S samples form our instructors. We used \texttt{mothur} to analyze the reads using default settings, except where stated otherwise.
+First we demultiplexed and quality filtered the reads using the \texttt{trim.seqs} command.
+Sequences were filtered out if they had an average phred score of less than 25, contained any ambiguous bases, had an homo-polymer run greater than 10bp, or they were shorter than 200bp.
+Reads were also trimmed up to any bases with a phred score less 20. 
+Due to the short sequences produced by high throughput sequencers and the limited amount of phylogenetic signal resulting, it is important that stringent quality filtering is applied. 
+Read errors can artificially inflate diversity estimates and compromise alignments. 
+
+I then extracted all of the reads from the sample ALP12GB; from this point all further analyses used this set of reads.
+The \texttt{unique.seqs} command was used to remove duplicate sequences in order to make further steps more computationally efficient. 
+There were 509 high quality reads, 320 of which represent unique sequences.
+We then used the \texttt{chimera.uchime} to remove any chimeras, but none were found. 
+\texttt{filter.seqs} was used to filter the badly aligned positions in the alignments using the the \texttt{vertical=T} option.
+This process removed 49600 of 50000 columns, resulting in an alignment of 400bp.
+We used the Ribosomal Database Project Naive Bayes Classifier implemented by the \texttt{classify.seqs} with a \texttt{cutoff} of 80 and assigned the resulting phylum level assignments to their respective reads. 
+We removed non-Bacterial sequences using the \texttt{remove.lineage} command. 
+
+We made phylogenetic trees using three methods: \texttt{clustalw}, \texttt{FastTree}, and \texttt{PhyML}, which implement neighbor-joining \ref{fig:clustalw}, mixed distance and maximum likelihood \ref{fig:fasttree}, and maximum likelihood respectively \ref{fig:phyml}. 
+We used a R script \texttt{annotate\_tree.R} to apply the phylum level identifications to the trees to aid their display. 
+The three methods of phylogentic inference produced substantially different trees. 
+The methods that incorporated maximum likelihood (PhyML and FastTree to a lesser extent) produced more believable trees with more hierarchical structure that correspond to the large span of diversity that is probably present, but took longer to run. 
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{0.3\linewidth}
+\centering
+
+\includegraphics[width=\linewidth]{clustal_tree.png}
+\captionof{figure}{Clustal}
+\label{fig:clustalw}
+
+\includegraphics[width=\linewidth]{fasttree_tree.png}
+\captionof{figure}{FastTree}
+\label{fig:fasttree}
+
+\includegraphics[width=\linewidth]{phyml_tree.png}
+\captionof{figure}{PhyML}
+\label{fig:phyml}
+
+\end{minipage}%
+
+\printbibliography
+
+\end{document}
