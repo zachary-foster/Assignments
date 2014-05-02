@@ -3,7 +3,6 @@
 .RData
 *.bib
 *.bbl
-*.pdf
 *.run.xml
 *.tex
 *.gz
