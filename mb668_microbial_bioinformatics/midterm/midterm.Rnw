@@ -1,0 +1,71 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage[margin=2cm, top=1cm]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\def\referencepath{../../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{(\citeauthor{#1} \citeyear{#1})}
+
+\addbibresource{\referencepath}
+
+
+<<setup, include=FALSE>>=
+#R library imports
+library(knitr)
+library(xtable)
+# set global chunk options
+opts_chunk$set(fig.align='center', 
+               fig.show='asis', 
+               fig.lp="", 
+               error=FALSE, 
+               cach=FALSE, 
+               dpi=600, 
+               include=T, 
+               echo=T, 
+               tidy=TRUE, 
+               out.width=".9\\linewidth", 
+               fig.width = 8, 
+               external=FALSE, 
+               results='markup',
+               message=FALSE)
+#read_chunk('insert file name here for code externalization ')
+@
+
+
+\title{Midterm Exam}
+\author{Zachary Foster}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\section{}
+Assuming that the 8bp motif can be located at any position in the intergenic spacer and can be located on either strand, there is $1000\times{}2\times{}(100 - 8 + 1)=186000$ positions at which an 8bp motif can occur.
+The chances of a random 8bp motif being any one permutation of base pairs is $4^{-8}\approx{}1.53\times{}10^{-5}$.
+For a particular permutation of motif locations, the chances of exactly $n$ number of 8bp motifs being identical is...
+$$\left(4^{-8}\right)^n\times{}\left(1 - 4^{-8}\right)^{186000 - n}$$
+and the number of possible permutations of locations that the motifs can appear in is...
+$$\frac{186000!}{n!\left(186000-n\right)!}$$
+Therefore, the chances that 5 or more identical 8bp motifs is...
+$$1-\sum_{n=0}^{4} \left[\left(\frac{186000!}{n!\left(186000-n\right)!}\right)\times{}\left(4^{-8}\right)^n\times{}\left(1 - 4^{-8}\right)^{186000 - n}\right]=0.1583097$$
+Below is the R code I used to do the calculation:
+<<>>=
+1- sum(choose(186000,0:4)*((4^(-8))^(0:4))*(1 - 4^(-8))^(186000 - 0:4))
+@
+
+\printbibliography
+
+\end{document}
