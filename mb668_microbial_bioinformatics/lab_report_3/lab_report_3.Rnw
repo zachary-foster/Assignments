@@ -1,15 +1,93 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage[margin=2cm]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\def\referencepath{../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{\citeauthor{#1} (\citeyear{#1})}
+
+\addbibresource{\referencepath}
+
+\def\referencepath{../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{\citeauthor{#1} (\citeyear{#1})\textsuperscript{\cite{#1}}}
+
+\addbibresource{\referencepath}
+
+
+\title{Knitr Template}
+\author{Zachary Foster}
+\date{\today}
+
+<<setup, include=FALSE>>=
+#R library imports
+library(knitr)
+library(xtable)
+# set global chunk options
+opts_chunk$set(fig.align='center', 
+               fig.show='asis', 
+               fig.lp="", 
+               error=FALSE, 
+               cach=FALSE, 
+               dpi=600, 
+               include=FALSE, 
+               echo=FALSE, 
+               tidy=TRUE, 
+               out.width=".9\\linewidth", 
+               fig.width = 8, 
+               external=FALSE, 
+               results='markup',
+               message=FALSE)
+#read_chunk('insert file name here for code externalization ')
+@
+
+\begin{document}
+\maketitle
+
 I decided to explore the structure of 354aa long protein of unknown frunction from \textit{Pelagibacter} strain 7214 using a varitiy of structural prediction methods.
 I submitted the unknown sequence to the Phyre2 server using the normal mode. 
+62 residues (18\% of the total sequence) hit a heptosyltransferase with 85.4\% confidence (Figure \ref{fig:phyre2}).
 I also submitted the seuqnece to SWISS-MODEL using the \texttt{Build Model} function. 
+The top hit was to a light-independent protochlorophyllide reductase subunit B, but was not esitmated to be significant (Figure \ref{fig:swiss}). 
+Next, the query was subbitted to iTASSER.
+The best hits were to PDB protiens with a hydroxycinnamoyltransferase function.
+All 10 top hits were some kind of transferase. 
+The best hit had 98\% coverage, but only 8\% sequence identity (Figure \ref{fig:itasser}).
+Function Prediction using COFACTOR and binding site prediction suggested similarity to acetyltransferases.
+I then serached ProSite for hits to the query using the \texttt{ScanProsite} tool, but no there were no hits.
+PFAM was also searched and only one hit to a protien of unknown function was returned (Figure \ref{fig:pfam}).
+I attempted to used SSCP (Secondary Structural Content Prediction), but I was unable to accesss the webpage; all links to it did not work. 
+I searched PDB using the query sequence and no matches were returned.
 
-ITASSER:
-The sequence has been successfully submitted to the I-TASSER server. Your job id number is S177125. You will be notified by email once the job is completed. The results of structure and function predictions for your submitted sequence will be available at (You may bookmark this link for your convenience of future visit): http://zhanglab.ccmb.med.umich.edu/I-TASSER/output/S177125/.
 
-Your submitted sequence is of 354 residues:
->Candidatus_Pelagibacter_ubique_protein_of_unknown_function
-MRYLKYLDIHGFPVKKTPNNKIKLLKQEKIYLFSKFKRRFDICLSLPTFDLIKNFYNDKI
-LEEYYLDKLRTIKFFFSFKIHFKLLAILNYFLFPKKIINLNNTDIVLFGPYSHSYSHSLH
-EFFTRLIFLKKKNKKFNVFLPKTLKKILSSKTYKLIFSKKNFNFKFFDTDTDIEFKNCNY
-LTHPNNRWVIKGKKKKISNEYRYLMNELRKEVTKNKILGQKKSNAKYILVSRSNALRRRL
-LNEDELFNQLKKYGFKKVFFENLSYEKQVELSMNCKIMIGYHGAGLTNLIFMKKKSHLIE
-IYNKHYEHEHFKLFSMCQKIKYKNFQCKENKKNLDGVCDIQEIKNYIINIKKKD
+\includegraphics[width=\linewidth]{phyre2.png}
+\captionof{figure}{Phyre2 results}
+\label{fig:phyre2}
+
+\includegraphics[width=\linewidth]{swiss.png}
+\captionof{figure}{SWISS-MODEL results}
+\label{fig:swiss}
+
+\includegraphics[width=\linewidth]{itasser.png}
+\captionof{figure}{Top iTASSER result 3D alignment}
+\label{fig:itasser}
+
+\includegraphics[width=\linewidth]{pfam.png}
+\captionof{figure}{PFAM result}
+\label{fig:pfam}
+
+
+\printbibliography
+\end{document}
