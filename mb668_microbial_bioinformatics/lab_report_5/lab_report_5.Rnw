@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage[margin=1.2cm, top=1cm, bottom=1.5cm]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\def\referencepath{../../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{(\citeauthor{#1} \citeyear{#1})}
+
+\addbibresource{\referencepath}
+
+
+<<setup, include=FALSE>>=
+#R library imports
+library(knitr)
+library(xtable)
+# set global chunk options
+opts_chunk$set(fig.align='center', 
+               fig.show='asis', 
+               fig.lp="", 
+               error=FALSE, 
+               cach=FALSE, 
+               dpi=600, 
+               include=FALSE, 
+               echo=FALSE, 
+               tidy=TRUE, 
+               out.width=".9\\linewidth", 
+               fig.width = 8, 
+               external=FALSE, 
+               results='markup',
+               message=FALSE)
+#read_chunk('insert file name here for code externalization ')
+@
+
+
+\title{Lab Report 5}
+\author{Zachary Foster}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\begin{minipage}[b]{0.45\linewidth}
+
+It this lab we sought to estimate the number of protein families in the core- and pan- genomes of \textit{Bacteroidetes fragilis} using 12 genomes. 
+The instructors supplied us with amino acid sequences of predicted proteins from the JGI's IMG database. 
+First, I concatenated all of the protein sequences into a single file using \texttt{cat}.
+In order to group similar proteins into families, I used LAST to identify homologs, Linux commands to filter results, and \texttt{mcl} to cluster similar sequences into families. 
+Last was used in order to minimize computational time. 
+I used the commands \texttt{lastdb} to format a database from the concatenated protein sequence file and \texttt{lastal} to perform the pairwise comparison between the database and the concatenated protein sequence file.
+The resultant \texttt{*.m8} text file was parsed with \texttt{grep} and \texttt{awk} to remove alignments in which less than 80\% of the query was aligned or the alignment score was less than 100. 
+\texttt{mcl} was then used to cluster the proteins using the filtered alignment information. 
+In total, 8875 protein families were found.
+The custom perl scripts \texttt{parse\_mcl.pl} and \texttt{add\_orphans\_mcl\_table.pl} were used to parse the mcl output in to a count table and include orphan sequences in the counts. 
+Finally, an R script \texttt{mcl.full.sum} was used to plot rarefaction curves of the number of pan- and core- genome protein families.
+
+The core genome rarefaction cure almost levels by the addition of 12 genomes (Figure \ref{fig:core}). 
+It appears that there are about 2,000 protein families in the genome core. 
+The pan-genome curve does not level out and may converge on a positive linear correlation, as is predicted by theory (Figure \ref{fig:pan}). 
+If this is the case than the 12 genomes could be sufficient the ascertain the slope of this relationship, but otherwise many more genomes would be needed.
+In the 12 genomes sampled there is about 10,000 protein families detected. 
+
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{0.45\linewidth}
+  \centering
+  
+  \includegraphics[width=\linewidth]{core.pdf}
+  \captionof{figure}{Core genome estimation}
+  \label{fig:core}
+  
+  \hfill
+  
+  \includegraphics[width=\linewidth]{pan.pdf}
+  \captionof{figure}{Pan genome estimation}
+  \label{fig:pan}
+  
+\end{minipage}%
+
+\printbibliography
+
+\end{document}
