@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage[margin=2cm]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\def\referencepath{../../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{(\citeauthor{#1} \citeyear{#1})}
+
+\addbibresource{\referencepath}
+
+
+\title{Lab Report 5}
+\author{Zachary Foster}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+Metagenomic analysis was conducted on coastal seawater incubated for 15h with various different nutrients added. 
+Prior to incubation, 450L of seawater was passed through a 1.5$\mu m$ filter to remove most eukarotes and large bacteria. 
+One of the following treatments were applied to subsamples of the filtered seawater: Amino acids, protein, acetate, lipids, glucose, starch. 
+After 15 hours of incubation, the water was passed through a 0.2$\mu m$ filter to remove cells and the filtrate was subjected to a variety of genomic and proteomic techniques, including shotgun DNA metagenomics with 300bp paired-end MiSeq sequencing.
+
+Metagenomic reads were assembled and annotated with COG functions a categories. 
+The number of sequences supporting each catogory in each sample was compiled into a contingency table of counts. 
+This contingency table was then uploaded into STAMP for statisitcal analysis. 
+For all analyses, I used a two-sided Fisher's exact test and a Bonferroni correction for multiple comparisons. 
+Unclassified sequences were used only to calculate frequency profiles.
+
+Using STAMP, I first checked whether there was a difference between the polymer nutrients and their constitutive monomers: amino acids vs proteins and starch vs glucose. 
+In both these comparisons there were no significant differences between any COG categories or annotations, as might be expected. 
+Since the monomers and polymers are likely interchangeable, for further comparisons I will only use protein and starch. 
+Acetate and lipids also had no significant differences in COG frequencies. 
+When comparing protein and acetate, a methyl-accepting chemotaxis protein was more frequent in the protein treatment. 
+This was also the case when protein was compared with lipids and starch.
+In all significant differences between protein COG frequencies and those of other treatments the protein COGs annotations were more frequent. 
+Acyl-CoA synthetases and Arylsulfatases A COG frequencies were also found to be significantly different in multiple comparisons. 
+
+\end{document}
