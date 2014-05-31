@@ -1,0 +1,105 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage[margin=2cm, top=2cm]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
+\def\referencepath{../../../References/references.bib}
+\def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{\citeauthor{#1} \citeyear{#1}}
+
+\addbibresource{\referencepath}
+
+
+<<setup, include=FALSE>>=
+#R library imports
+library(knitr)
+library(xtable)
+# set global chunk options
+opts_chunk$set(fig.align='center', 
+               fig.show='asis', 
+               fig.lp="", 
+               error=FALSE, 
+               cach=FALSE, 
+               dpi=600, 
+               include=FALSE, 
+               echo=FALSE, 
+               tidy=TRUE, 
+               out.width=".9\\linewidth", 
+               fig.width = 8, 
+               external=FALSE, 
+               results='markup',
+               message=FALSE)
+#read_chunk('insert file name here for code externalization ')
+@
+
+
+\title{Lab Report 6}
+\author{Zachary Foster}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\section{}
+
+The ubiquitous cyanobacterium \textit{Prochlorococcus marinus} SS120 is missing a gene ketopantoate reductase, which is involved in pantothenate synthesis (Figure \ref{fig:kegg}). 
+However, \textit{Prochlorococcus marinus} is known to grow in pure culture without the addition of pantothenate, so another gene must be replacing its function. 
+I looked up ketopantoate reductase on EcoCyc and found that acetohydroxy acid isomeroreductase can replace its function. 
+To check if acetohydroxy acid isomeroreductase is present in the \textit{Prochlorococcus marinus} genome, I looked up the gene on MicrobesOnline and found that it was present in every Prochlorococcus genome on the website. 
+This suggests that acetohydroxy acid isomeroreductase replaces the function of ketopantoate reductase in \textit{Prochlorococcus marinus} SS120.
+
+\includegraphics[width=\linewidth]{kegg.png}
+\captionof{figure}{KEGG pathway for pantothenate synthesis}
+\label{fig:kegg}
+
+
+\section{}
+
+\textit{Pelagibacter} HTCC1062 is missing the thiC gene involved in the synthesis of thiamine.
+thiC allows purine metabolism end products to be converted to a precursor of thiamine, 4-amino-5-hydroxymethyl-2-methylpyrimidine.
+However, \textit{Pelagibacter} HTCC1062 has the enzymes to convert 4-amino-5-hydroxymethyl-2-methylpyrimidine to thiamine \ref{fig:pelag}. 
+In such a reduced genome, it is not likely that these genes downstream to thiC are not in use do to the lack of substrate, so thiC must be being circumvented somehow.
+One possibility is that the product of thiC, 4-amino-5-hydroxymethyl-2-methylpyrimidine, is being absorbed directly from the ocean water. 
+When searching the literature for the presence of 4-amino-5-hydroxymethyl-2-methylpyrimidine in the ocean, I found a paper out of the glorious and infallible Giovannoni lab, that confirmed my suspicion \cite{carini_discovery_2014}.
+\mycite{carini_discovery_2014} state that 4-amino-5-hydroxymethyl-2-methylpyrimidine is necessary for the growth of textit{Pelagibacter} in small amounts and confirmed its presence in the open ocean. 
+
+\includegraphics[width=\linewidth]{pelag.png}
+\captionof{figure}{KEGG pathway for thiamine synthesis in \textit{Pelagibacter}}
+\label{fig:pelag}
+
+
+\section{}
+
+The putative carbon monoxide dehydrogenase gene in Janibacter strain HTCC2649 is thought to be a misannotation, since there is no evidence that Janibacter strain HTCC2649 can use carbon monoxide as a substrate. 
+I searched for the carbon monoxide dehydrogenase gene in Janibacter strain HTCC2649 on MicrobesOnline and found another annotation as an xanthine dehydrogenase. 
+xanthine dehydrogenase is involved in the degradation of xanthine and hypoxanthine to urate, a process which reduces two NAD+ to NADH (Figure \ref{fig:jani-kegg}).
+In the same operon of the putative monoxide dehydrogenase gene in Janibacter strain HTCC2649 there is a urate permiase (Figure \ref{fig:jani-synteny}). 
+This suggests that the misannotated gene could in fact be a xanthine dehydrogenase that allows for the breakdown of nucleic acid via xanthine and hypoxanthine.
+In this case, the associated urate permiase could function to remove the urate from the cell as a waste product.  
+This would imply that Janibacter strain HTCC2649 can derive energy from the breakdown of nucleic acids, excreting urate in the process.
+This could be tested by comparing the growth rate of Janibacter strain HTCC2649 in pure culture on minimal media with differing amounts of nucleic acids as substrates. 
+Increased growth in response to higher levels of nucleic acid and a corresponding increase in urate concentration in the media would support this hypothesis. 
+
+\includegraphics[width=\linewidth]{jani-kegg.png}
+\captionof{figure}{KEGG pathway for Purine metabolism in \textit{Janibacter}}
+\label{fig:jani-kegg}
+
+\includegraphics[width=\linewidth]{jani-synteny.png}
+\captionof{figure}{MicrobesOnline tree view for genomic regions of organisms closely related to  \textit{Janibacter}}
+\label{fig:jani-synteny}
+
+\printbibliography
+
+\end{document}
