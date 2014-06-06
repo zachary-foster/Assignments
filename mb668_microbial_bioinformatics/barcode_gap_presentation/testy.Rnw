@@ -1,0 +1,220 @@
+\documentclass[9pt]{beamer}
+\usepackage{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage{caption}
+
+\captionsetup[figure]{labelformat=simple}
+\captionsetup[table]{labelformat=simple}
+
+
+\def\referencepath{../../References/references.bib}
+\def\dc#1{$#1\,^{\circ}\mathrm{C}$}
+\def\mycite#1{\mbox{\citeauthor{#1} \citeyear{#1}}}
+
+\addbibresource{\referencepath}
+
+
+\usetheme{Singapore}
+
+\title{Exploring taxon-specific barcode attributes}
+\author{Zachary Foster}
+\date{\today}
+
+<<setup, include=FALSE>>=
+#R library imports
+library(knitr)
+library(xtable)
+# set global chunk options
+opts_chunk$set(fig.align='center', 
+               fig.show='asis', 
+               fig.lp="", 
+               error=FALSE, 
+               cach=FALSE, 
+               dpi=600, 
+               include=FALSE, 
+               echo=FALSE, 
+               tidy=TRUE, 
+               out.width=".9\\linewidth", 
+               fig.width = 8, 
+               external=FALSE, 
+               results='markup',
+               message=FALSE)
+read_chunk('Metabarcoding_Sequencing_Technology_Comparison.R')
+@
+
+<<imports, external=TRUE>>=
+@
+
+
+\begin{document}
+
+\section{Introduction}
+\subsection{}
+
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\section{Background}
+\subsection{}
+
+
+\begin{frame}{Benifits of Metabarcoding}
+  \begin{minipage}[c]{0.35\linewidth}
+
+    \includegraphics[width=\linewidth]{mycorrhizae.png}
+    
+    \includegraphics[width=\linewidth]{nematode.png}
+    
+    \includegraphics[width=\linewidth]{phytophthora.png}
+    
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[c][.65\textheight][c]{0.65\linewidth}
+    \begin{itemize}
+      \setlength\itemsep{\fill}
+      \item Targeted, yet culture independent
+      \item Samples at much greater depth than shotgun metagenomics
+      \item Estabilished and curated databases avilable
+      \item Relativly easy to analyze results
+      \item Relativly east to construct reference databases using standard barcoding
+    \end{itemize}
+  \end{minipage}%
+\end{frame}
+
+\begin{frame}{Biases of Metabarcoding}
+  \begin{minipage}[c]{0.35\linewidth}
+
+    \includegraphics[width=\linewidth]{mycorrhizae.png}
+    
+    \includegraphics[width=\linewidth]{nematode.png}
+    
+    \includegraphics[width=\linewidth]{phytophthora.png}
+    
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[c][.65\textheight][c]{0.65\linewidth}
+    \begin{itemize}
+      \setlength\itemsep{\fill}
+      \item Relies on reference databases for sequence identification.
+      \item PCR primer specificiy
+      \item Small sequence size
+      \item Barcode locus characteristics
+    \end{itemize}
+  \end{minipage}%
+\end{frame}
+
+
+\begin{frame}{Implied assumptions of OTU clustering and diversity estimation}
+  \begin{minipage}[c][.65\textheight][c]{\linewidth}
+    \begin{enumerate}
+      \setlength\itemsep{\fill}
+      \item Evolution rate of the barcode locus is consant throughout group 
+      \item Taxonomic levels corespond to divergences of similar degree
+      \item Differnt barcode loci yeild comparable results
+      \item Different primers yeild comparable results
+    \end{enumerate}
+  \end{minipage}%
+\end{frame}
+
+
+\section{Methods}
+
+\subsection{}
+
+\begin{frame}{Process overview}
+  \begin{minipage}[c][.65\textheight][c]{\linewidth}
+    \begin{enumerate}
+      \setlength\itemsep{\fill}
+      \item Obtaine multiple seuence alignment with taxonomy information from RDP
+      \item Subsample multiple seuence alignment based on taxonomy information 
+      \item Use fdnadist to calculate a pair-wise distance matrix
+      \item Subsample distance matrix for each taxon at each taxonomic level
+      \item Calculate taxon-specific statistics
+    \end{enumerate}
+  \end{minipage}%
+\end{frame}
+
+\begin{frame}{Taxon intra vs inter distance distributions}
+  Within each taxon the distance between sequences of differnt and the same subtaxa was compared.
+  \includegraphics[width=.6\linewidth]{to_genus_k2_distance.png}
+\end{frame}
+
+\section{Future Directions}
+\subsection{}
+
+
+
+
+\begin{frame}{Barcoding Gap and Clustering Threshold Calibration}
+
+\vspace{1cm}
+\begin{minipage}[b]{.43\linewidth}
+  \includegraphics[width=\linewidth]{barcode_gap_analysis}
+  \captionof{figure}{Barcode gap analysis (\mycite{brown_spider:_2012})}
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{.52\linewidth}
+  \includegraphics[width=\linewidth]{threshold_minimizing}
+  \captionof{figure}{Clustering threshold optimization (\mycite{brown_spider:_2012})}
+\end{minipage}%
+\end{frame}
+
+\begin{frame}{Looking for Patterns with NMS and PCA}
+  \begin{itemize}
+    \item Dimension reduction can be used to visualize cryptic associations between species abundance and sample characteristics. 
+    \item Principal component analysis (PCA)
+    \item Non-metric multidimensional scaling (NMS)
+  \end{itemize}
+  \begin{minipage}[t]{.5\linewidth}
+    \includegraphics[height=3.6cm]{health_pca}
+    \captionof{figure}{PCA of pea fungal diversity (\protect\mycite{xu_linking_2012})}
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[t]{.5\linewidth}
+    \includegraphics[height=3.6cm]{nms_2}
+    \captionof{figure}{NMS analysis of foliar fungal diversity (\protect\mycite{zimmerman_fungal_2012})}
+  \end{minipage}%
+\end{frame}
+
+\begin{frame}{Taking into account Primers with in silico PCR Amplification}
+  Primer choice is crucial to minimize taxa-specific bias.
+  \begin{figure}
+    \includegraphics[height=5.5cm]{barcoder_output}
+    \captionof{figure}{Results of in silico PCR of a potential primer pair against the PR2 reference database for protists}
+  \end{figure}
+\end{frame}
+
+
+\section{Conclusion}
+\subsection{}
+
+
+
+\begin{frame}{Summary}
+  \begin{minipage}[c][.65\textheight][c]{\linewidth}
+    \begin{itemize}
+      \setlength\itemsep{\fill}
+      \item The phytobiome of woody plant roots is important and understudied.
+      \item Rhododendrons are economically and aesthetically important for the Northwest.
+      \item Metabarcoding allows for culture-independent analysis of phytobiomes.
+      \item Clusters of similar sequences (OTUs) can function as species analogs. 
+      \item Patterns in species abundance across samples with differing characteristics can reveal the driving factors behind community composition.
+    \end{itemize} 
+  \end{minipage}%
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]{References}
+  \printbibliography[heading=none]
+\end{frame}
+
+
+\end{document}
