@@ -35,6 +35,7 @@
 \section*{Methods}
 
 \subsection*{Database consolidation and standardization}
+
 In planning a amplicon metabarcoding experiment it is sometimes nessesary to combine multiple refernece database with differnt formats so they can be used in the same pipeline.
 This is especially the case when studing multiple kingdoms within a single community or an abscure group of organisms requiring specilized databases. 
 Unfortunatly most databases have their own custom FASTA header formats and few have an explicit taxonomy specified, so their taxonomys must be downloaded from NCBI by refernecing an accession or taxonomy ID. 
@@ -68,6 +69,7 @@ A possible future imporvemnt to \texttt{reformat\_fasta.py} could be an ability 
 
 
 \subsection*{Initial database statistics}
+
 In order to make downsteam scripts less memory intensive, I made a script called \texttt{fasta\_taxon\_statistics.py} to caluculate taxon-specific statistics before the distance matrix is calculatd.
 This is principally done to aid in randomly subsampling the database without loading it all into memory, as is described in the next section. 
 
@@ -80,13 +82,12 @@ Statistics calculated for each taxon include: the number of sequences, the taxon
 
 \begin{figure}[t]
 \begin{quote}
-\texttt{d\_\_Fungi;p\_\_Glomeromycota}
-
-\texttt{d\_\_Fungi;p\_\_Ascomycota;c\_\_Dothideomycetes}
-
-\texttt{d\_\_Fungi;p\_\_Ascomycota;c\_\_Dothideomycetes;o\_\_Pleosporales;f\_\_Phaeosphaeriaceae;g\_\_Phoma}
-
-\texttt{d\_\_Fungi;p\_\_Ascomycota;c\_\_Dothideomycetes;o\_\_Pleosporales;f\_\_Didymellaceae;g\_\_Phoma}
+\begin{verbatim}
+d__Fungi;p__Glomeromycota
+d__Fungi;p__Ascomycota;c__Dothideomycetes
+d__Fungi;p__Ascomycota;c__Dothideomycetes;o__Pleosporales;f__Phaeosphaeriaceae;g__Phoma
+d__Fungi;p__Ascomycota;c__Dothideomycetes;o__Pleosporales;f__Didymellaceae;g__Phoma
+\end{verbatim}
 \end{quote}
 \caption{Format of taxon identifiers and FASTA taxonomy strings.}
 \label{text:taxonomy-string}
@@ -107,6 +108,7 @@ id      taxon                   level   name        count   parent  children
 
 
 \subsection*{Database subsampling}
+
 In order to focus on a specific subset of an entire reference database, I made a python script that subsamples a FASTA reference database, taking into consideration the taxonomy encoded in the headers.
 This is often nessesary since refernece databases are very large and the time it takes to calculate a pair-wise distance matrix is proportional to the square of the number of sequences.
 Some taxa have much more sequences than are nessary.
@@ -121,11 +123,35 @@ This allows it to reads the database one sequences at a time and thus it is able
 It can also filter out sequences that are not identified to a specific set of taxonomic levels. 
 Specific taxa can also be required or removed, so that the user can focus on specific groups of organisms.  
 
+
 \subsection*{Distance matrix calculation}
+
 One of the most important and computationally intensive steps in this procedure is that calculation of a pairwise distance matrix between all sequences. 
 Any program or distance metric can be used; the choice depends of the type of sequence data availble and the characterics of the locus analyzed.
 If the refernece datbase is a multiple sequences alignment, then a program such as \texttt{fdnadist} from the EMBOSS package can be used. 
 If the sequences are unaligned and all of the same locus, than a pairwise global alignment tool, such as the \texttt{pair.seqs} command from the Mothur package can be used. 
+If the sequences are unaligned and contain the locus of interest, but are not globally alignable, it might be possible to use \textit{in silico} PCR, using a program such as \texttt{isPCR}, to extract amplicon sequenes so they can be globally aligned. 
+This method adds a whole new level of complexity and will be explained further in the discussion. 
+Finally, if the sequences do not share any genes it might still be possible to obtain a rough distance using tetranucleotide frequencey or GC content. 
+
+After a distance matrix is obtained using one the methods described above it might be nessesary to rename the rows and columns as the sequence taxonomy headers.
+To do this I have written a simple script called \texttt{reformat\_matrix.py}. 
+Currently this script only accepts the Phylip format outputted by \texttt{fdnadist}, but I plan to add support for other formats as needed.
+
+\subsection*{Calculation of taxon-specific distance statistics}
+
+once a correctly formatted distance matrix is produced, it can be subsampled for each taxon and statistics cacluated. 
+The most important of these are the optimal clustering threshold and the expected error rate at that threshold. 
+The optimal clustering threshold can be calculated for any taxonomic level (e.g. clustering species vs clustering genera).
+
+To do this and visulize the results, I wrote an R script. 
+For clustering a given taxonomic level, it subsamples the entire distance matrix for each taxon and calucluats the distribution of inter-taxon and intra-taxon distances, the optimal clustering threshold, and error rate. 
+The clustering threshold optimaization and error rate calculations are done using the \texttt{Spider} package function \texttt{threshOpt}. 
+The optimal clustering threshold is determined by clustering over a range of distance thresholds and pciking the threshold that minimizes the sum of the flase positive and false negative error rates. 
+False positives result from too low of a threshold, causing sequences to be classified differntly when they are actually the same for a given taxonomic level.
+False negatives result from too high of a threshold, causing sequences to be classified as the same when they are differnt. 
+
+
 \section*{Results}
 
 \section*{Discussion}
