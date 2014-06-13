@@ -7,11 +7,12 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage[backend=bibtex]{biblatex}
-\usepackage[margin=2.5cm]{geometry}
+\usepackage[margin=1.5cm]{geometry}
 \usepackage{caption}
-\usepackage{subcaption}
 \usepackage{filecontents}
 \usepackage{csquotes} 
+\usepackage[tight,TABTOPCAP]{subfigure}
+
 
 \def\referencepath{../../../References/references.bib}
 \def\sectiontitle#1{\subsection*{\cite{#1}\citetitle{#1}\citeyear{#1}}}
@@ -31,6 +32,19 @@
 \maketitle
 
 \section*{Introduction}
+
+Amiplicon metagenomics, alos known as metabarcoding, is a rapidly advancing field that has great potential for characterizing the microbial communities.
+Before metabarcoding, scientist were reseticted to low-thruput techniqes heavly biased by culturability. 
+Although shotgun metagenmics has advantages over metabarcoding (e.g. no primer bias, functional genomic inferences), it is still too expensive to sample most communities exhastivly. 
+Metabarcoding allows for up to hundreds of samples to be exhanstivly characterized using a single Illumina MiSeq run, costing less than \$3000. 
+With the ever decreasing cost of sequences and increasing reads lengths of high-throuput sequences like Illuia, metabarcoding is likly to become a rutoine techniue in microbial ecology laboratories. 
+Unofrtunatly metabarcoding is limited by the availbility of refence databases and "universal" primer pairs. 
+This realiance has stiflied the application of metabarcoding to novel groups of organisms and unconvential barcode loci.
+Softeware to aid in the planning and evaluation of poential barcode loci and their effectivness for diffent taxonomic groups would greatly accelerate the application of this powerful techniqe to new systems.
+Therfore I am developing a set of python and R scripts to chaaracterize taxon-specific statitsics relevant to metabarcodings.
+The pipeline can combine and reformat multiple different reference databases, randomly subsample the combined database by taxon, and calculate the optimal distance clustering threshold and predicted error rates using an arbitrary distance matrix. 
+I am also looking into integrating \textit{in silico} PCR data to predict the effects of differnt primers on the ability to detect and differntiate taxa. 
+My scripts use refernece database sequences to produce useful tables of statsitcs pertaining to each taxon and intuitive, information-rich graphics for evaluation of novel experimental protocols.
 
 \section*{Methods}
 
@@ -150,9 +164,133 @@ The clustering threshold optimaization and error rate calculations are done usin
 The optimal clustering threshold is determined by clustering over a range of distance thresholds and pciking the threshold that minimizes the sum of the flase positive and false negative error rates. 
 False positives result from too low of a threshold, causing sequences to be classified differntly when they are actually the same for a given taxonomic level.
 False negatives result from too high of a threshold, causing sequences to be classified as the same when they are differnt. 
+Currently clustering at only one level at a time is supported, so the script needs to be run multiple times to get optimal thrtesholds for clusing differnt taxonomic levels. 
 
+\subsection*{Visulization of taxon-specific distance statistics}
+
+With such high dimentional data, effective visulization is key to discovering patterens.
+I used the R packages \texttt{ggplot2} and \texttt{igraph} to make information-rich graphics for exploratory analysis.
+I designed a novel (as far as I know) form of displaying multidimentional data within a heirarchy by placing graphs produced by \texttt{ggplot2} into the nodes of a phylogenetic tree produced by \texttt{igraph}.
+This allows for the relationships of hundreds of taxa to be browsed at once in an intuative manner. 
+I also used colored nodes to dispaly the distrubution of taxon statistcs over an entire phylogeny, making large-scale patterns over taxonomic levels and linages apparent. 
+In additon, more conventional graphs dsiplaying the distribution of statistics at each taxonomic level are also produced. 
+All these graphics are produces automatically and saved as PNG images in a defined file structure allowing for further automated analysis and integration of results. 
 
 \section*{Results}
+
+
+\subsection*{Construction of test data}
+
+To demonstrate the abilitties of this pipeline, I analyzed the Ribosomal Database Project (RDP) LSU refenrece multiple sequence alignment, testing it ability to differntiate a range of taxaonomic leves from species to class. 
+The database contained 95,396 fungal LSU sequences and the aligned FASTA file was 2.0Gb.
+
+After formatting the database using \texttt{fasta\_taxon\_statistics.py}, I used \texttt{fasta\_taxon\_statistics.py} to calculate initial taxon-specific statistcs for the entire database. 
+After appending genus and species information (if present in the organism name) onto the taxonomy string during formatiing, 37,733 dsitinct taxa were present. 
+I then filtered out any sequences that did not have the ful taxonomy string ranging from domain to species, resulting in a filtered database with 64,038 sequences and 28,897 taxa. 
+In order to reduce the database further and remove taxa with two few sequences, I subsampled each species to 10 sequences and removed species with less than 10 sequences. 
+This reduced the database to 8,000 sequences comprising 1,339 taxa. 
+
+With this drastically reduced databse I used \texttt{fdnadist} to calculate a distance matrix using the Kimura 2-parameter evolution model, which allows for differnt rates of transitions and transversions. 
+This took about 2 hours to run on my desktop computer. 
+The resultant distance matrix and taxon-specific statistics for the subsampled database were the only inputs of used for downstream analysis. 
+
+The ability of this refernece alignment to differntiate sequences of each taxon into every taxonomic level between speceis and class was tested. 
+
+\subsection*{Visulaiztions}
+
+Graphs were produced summarixing the distribution of both the optimal clustering threshold (Figure \ref{fig:threshold}) and the predicted error rate at that threshold (Figure \ref{fig:error}). 
+A more complicated set of graphs was made showing the false positive and false negative error rates of a range of clustering thresholds for each taxon(Figures \ref{fig:threshold_optimization_K2_Species} and \ref{fig:threshold_optimization_K2_Genus}).
+These are displaying the information form which the optimal threshold and error rate were caluculated. 
+
+
+
+
+\begin{figure}[ht]
+ \centering
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth, height=5.5cm]{optimal_threshold_boxplot_K2_Species}
+   \label{fig:optimal_threshold_boxplot_K2_Species}
+   }
+ \hspace{5pt}
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth, height=5.5cm]{optimal_threshold_boxplot_K2_Genus}
+   \label{fig:optimal_threshold_boxplot_K2_Genus}
+   }
+
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth, height=8cm]{optimal_threshold_distribution_K2_Species}
+   \label{fig:optimal_threshold_distribution_K2_Species}
+   }
+ \hspace{5pt}
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth, height=8cm]{optimal_threshold_distribution_K2_Genus}
+   \label{fig:optimal_threshold_distribution_K2_Genus}
+   }
+
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth]{optimal_threshold_tree_K2_Species}
+   \label{fig:optimal_threshold_tree_K2_Species}  
+ }
+ \hspace{5pt}  
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth]{optimal_threshold_tree_K2_Genus}
+   \label{fig:optimal_threshold_tree_K2_Genus}
+   }
+ \caption[fig:threshold]{%
+  Optimal distance threshold statistics for differnetiating speceis [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For fingures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0, blue is the maximum threshold, and green is the median.}
+ \label{fig:threshold}
+\end{figure}
+
+
+
+\begin{figure}[ht]
+ \centering
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth, height=5.5cm]{optimal_error_boxplot_K2_Species}
+   \label{fig:optimal_error_boxplot_K2_Species}
+   }
+ \hspace{5pt}
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth, height=5.5cm]{optimal_error_boxplot_K2_Genus}
+   \label{fig:optimal_error_boxplot_K2_Genus}
+   }
+
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth, height=8cm]{optimal_error_distribution_K2_Species}
+   \label{fig:optimal_error_distribution_K2_Species}
+   }
+ \hspace{5pt}
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth, height=8cm]{optimal_error_distribution_K2_Genus}
+   \label{fig:optimal_error_distribution_K2_Genus}
+   }
+
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth]{optimal_error_tree_K2_Species}
+   \label{fig:optimal_error_tree_K2_Species}  
+ }
+ \hspace{5pt}  
+ \subfigure[]{
+  \includegraphics[width=.4\linewidth]{optimal_error_tree_K2_Genus}
+   \label{fig:optimal_error_tree_K2_Genus}
+   }
+ \caption[fig:error]{%
+  Error rates at optimal threshold statistics for differnetiating speceis [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For fingures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0\%, green is 50\%, and blue is 100\%.}
+ \label{fig:error}
+\end{figure}
+
+\begin{figure}[t]
+\includegraphics[width=\linewidth]{threshold_optimization_K2_Species}
+\caption{Threshold optimization graphs for differentating speceis. Each graph is a kernal density plot of false positive (blue ) fasle negatives (red) and cumulative error (black line). The y axis is relative frequency and the x axis is clustering threshold. The lowest point in the black line is the optimal threshold.}
+\label{fig:threshold_optimization_K2_Species}
+\end{figure}
+
+\begin{figure}[t]
+\includegraphics[width=\linewidth]{threshold_optimization_K2_Genus}
+\caption{Threshold optimization graphs for differentating genera. Each graph is a kernal density plot of false positive (blue ) fasle negatives (red) and cumulative error (black line). The y axis is relative frequency and the x axis is clustering threshold. The lowest point in the black line is the optimal threshold.}
+\label{fig:threshold_optimization_K2_Genus}
+\end{figure}
+
 
 \section*{Discussion}
 
