@@ -107,7 +107,7 @@ d__Fungi;p__Ascomycota;c__Dothideomycetes;o__Pleosporales;f__Didymellaceae;g__Ph
 \label{text:taxonomy-string}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[b]
 \begin{quote}
 \begin{verbatim}
 id      taxon                   level   name        count   parent  children
@@ -213,15 +213,15 @@ There seems to be an effect of evolutionary history on error rates since lineage
 
 \section*{Discussion}
 
-\subsection{Implications for conventional metabarcoding}
+\subsection*{Implications for conventional metabarcoding}
 
 With even this first attempt using a test data set on a single locus (LSU), intriguing patterns are already becoming apparent that violate many assumptions often made by researchers out of convenience. 
 Metabarcoding analysis pipelines and distance-based clustering usually assume that the entirety of a large group has a similar inter-specific distance, such as 3\% PID for fungi ITS sequence. 
-Here we observe that the values for optimal inter-specific K2 thresholds of genera easily range from 0.0 to 0.1 (Figure \ref{threshold} \subref{optimal_threshold_distribution_K2_Species}). 
-The inter-genus distance covers twice that range  (Figure \ref{threshold} \subref{optimal_threshold_distribution_K2_Genus}). 
+Here we observe that the values for optimal inter-specific K2 thresholds of genera easily range from 0.0 to 0.1 (Figure \ref{fig:threshold} \subref{fig:optimal_threshold_distribution_K2_Species}). 
+The inter-genus distance covers twice that range  (Figure \ref{fig:threshold} \subref{fig:optimal_threshold_distribution_K2_Genus}). 
 Error rates at optimal thresholds show a similar amount of variation, even though they are calculated for each taxon separately (Figure \ref{fig:error}). 
 If they were calculated using a single universal threshold the variation in error rates would be even higher as a result of different optimal thresholds.
-This means that studies using LSU for all fungi at a single clustering threshold are often incorrectly differentiating species up to 50\% of the time (Figure \ref{error} \subref{optimal_error_boxplot_K2_Species}).
+This means that studies using LSU for all fungi at a single clustering threshold are often incorrectly differentiating species up to 50\% of the time (Figure \ref{fig:error} \subref{fig:optimal_error_boxplot_K2_Species}).
 
 \subsection*{Future directions}
 
