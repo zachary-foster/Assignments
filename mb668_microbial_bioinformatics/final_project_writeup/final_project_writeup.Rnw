@@ -33,35 +33,35 @@
 
 \section*{Introduction}
 
-Amiplicon metagenomics, alos known as metabarcoding, is a rapidly advancing field that has great potential for characterizing the microbial communities.
-Before metabarcoding, scientist were reseticted to low-thruput techniqes heavly biased by culturability. 
-Although shotgun metagenmics has advantages over metabarcoding (e.g. no primer bias, functional genomic inferences), it is still too expensive to sample most communities exhastivly. 
-Metabarcoding allows for up to hundreds of samples to be exhanstivly characterized using a single Illumina MiSeq run, costing less than \$3000. 
-With the ever decreasing cost of sequences and increasing reads lengths of high-throuput sequences like Illuia, metabarcoding is likly to become a rutoine techniue in microbial ecology laboratories. 
-Unofrtunatly metabarcoding is limited by the availbility of refence databases and "universal" primer pairs. 
-This realiance has stiflied the application of metabarcoding to novel groups of organisms and unconvential barcode loci.
-Softeware to aid in the planning and evaluation of poential barcode loci and their effectivness for diffent taxonomic groups would greatly accelerate the application of this powerful techniqe to new systems.
-Therfore I am developing a set of python and R scripts to chaaracterize taxon-specific statitsics relevant to metabarcodings.
-The pipeline can combine and reformat multiple different reference databases, randomly subsample the combined database by taxon, and calculate the optimal distance clustering threshold and predicted error rates using an arbitrary distance matrix. 
-I am also looking into integrating \textit{in silico} PCR data to predict the effects of differnt primers on the ability to detect and differntiate taxa. 
-My scripts use refernece database sequences to produce useful tables of statsitcs pertaining to each taxon and intuitive, information-rich graphics for evaluation of novel experimental protocols.
+Amplicon metagenomics, also known as metabarcoding, is a rapidly advancing field that has great potential for characterizing the microbial communities.
+Before metabarcoding, scientist were restricted to low-throughput techniques heavily biased by culturability. 
+Although shotgun metagenomics has advantages over metabarcoding (e.g. no primer bias, functional genomic inferences), it is still too expensive to sample most communities exhaustively. 
+Metabarcoding allows for up to hundreds of samples to be exhaustively characterized using a single Illumina MiSeq run, costing less than \$3000. 
+With the ever decreasing cost of sequences and increasing reads lengths of high-throughput sequences like Illumina, metabarcoding is likely to become a routine technique in microbial ecology laboratories. 
+Unfortunately metabarcoding is limited by the availability of reference databases and "universal" primer pairs. 
+This reliance has stifled the application of metabarcoding to novel groups of organisms and unconventional barcode loci.
+Software to aid in the planning and evaluation of potential barcode loci and their effectiveness for different taxonomic groups would greatly accelerate the application of this powerful technique to new systems.
+Therefore I am developing a set of python and R scripts to characterize taxon-specific statistics relevant to metabarcoding.
+The pipeline can combine and reformat multiple different reference databases, randomly sub-sample the combined database by taxon, and calculate the optimal distance clustering threshold and predicted error rates using an arbitrary distance matrix. 
+I am also looking into integrating \textit{in silico} PCR data to predict the effects of different primers on the ability to detect and differentiate taxa. 
+My scripts use reference database sequences to produce useful tables of statistics pertaining to each taxon and intuitive, information-rich graphics for evaluation of novel experimental protocols.
 
 \section*{Methods}
 
 \subsection*{Database consolidation and standardization}
 
-In planning a amplicon metabarcoding experiment it is sometimes nessesary to combine multiple refernece database with differnt formats so they can be used in the same pipeline.
-This is especially the case when studing multiple kingdoms within a single community or an abscure group of organisms requiring specilized databases. 
-Unfortunatly most databases have their own custom FASTA header formats and few have an explicit taxonomy specified, so their taxonomys must be downloaded from NCBI by refernecing an accession or taxonomy ID. 
-This means that the first step in any pipline that seeks to use sequences from multiple refenrece databases must be able to read in multiple format.
-Therefore, I made a script called \texttt{reformat\_fasta.py} that reformats the FASTA headers of a varity of common refenrece database formats into a format similar to that used by UNITE (Figure \ref{text:database-formats}). 
-A single format also makes it easier for multiple scirpts to communicate. 
-The header format contians pipe-delimited positional fields for the organism name, genbank ID, refence database-specific ID, and taxonomy. 
+In planning a amplicon metabarcoding experiment it is sometimes necessary to combine multiple reference database with different formats so they can be used in the same pipeline.
+This is especially the case when studying multiple kingdoms within a single community or an obscure group of organisms requiring specialized databases. 
+Unfortunately most databases have their own custom FASTA header formats and few have an explicit taxonomy specified, so their taxonomy must be downloaded from NCBI by referencing an accession or taxonomy ID. 
+This means that the first step in any pipeline that seeks to use sequences from multiple reference databases must be able to read in multiple format.
+Therefore, I made a script called \texttt{reformat\_fasta.py} that reformats the FASTA headers of a variety of common reference database formats into a format similar to that used by UNITE (Figure \ref{text:database-formats}). 
+A single format also makes it easier for multiple scripts to communicate. 
+The header format contains pipe-delimited positional fields for the organism name, genbank ID, reference database-specific ID, and taxonomy. 
 The levels of the taxonomy field (Figure \ref{text:taxonomy-string}) are semi-colon-delimited and each is in the form "l\_\_name", where "l" is a one or two character abbreviation of the taxonomic level and "name" is the taxon (e.g. "p\_\_Ascomycota").
 Currently the \texttt{reformat\_fasta.py} can read in the formats of the following database: UNITE, ITS1, Genbank, RDP, Phyto ID, and Phyto DB. 
 Of these, only Genbank, RDP, and UNITE have full taxonomy information included. 
 However the others do have either genbank accession or taxonomy IDs, allowing their full taxonomy to be downloaded. 
-A possible future imporvemnt to \texttt{reformat\_fasta.py} could be an ability to automatically download the taxonomoy information for these databases and insert it into their headers. 
+A possible future improvement to \texttt{reformat\_fasta.py} could be an ability to automatically download the taxonomy information for these databases and insert it into their headers. 
 
 
 \begin{figure}[t]
@@ -84,13 +84,13 @@ A possible future imporvemnt to \texttt{reformat\_fasta.py} could be an ability 
 
 \subsection*{Initial database statistics}
 
-In order to make downsteam scripts less memory intensive, I made a script called \texttt{fasta\_taxon\_statistics.py} to caluculate taxon-specific statistics before the distance matrix is calculatd.
-This is principally done to aid in randomly subsampling the database without loading it all into memory, as is described in the next section. 
+In order to make downstream scripts less memory intensive, I made a script called \texttt{fasta\_taxon\_statistics.py} to calculate taxon-specific statistics before the distance matrix is calculated.
+This is principally done to aid in randomly sub-sampling the database without loading it all into memory, as is described in the next section. 
 
 Statistics are calculated for each taxon at each taxonomic level. 
-Taxa are differntiated by their linage (i.e. the name of the taxon, as well all of the higher level taxa it is a part of). 
-Using the lineage to define a taxon instead of just its name and level allows for correct handleing of multiple taxa at the same level with the same name, but part of different higher level taxa (Figure \ref{text:taxonomy-string}).
-This is important for correct summary statistics and downstream tree visulaization.
+Taxa are differentiated by their linage (i.e. the name of the taxon, as well all of the higher level taxa it is a part of). 
+Using the lineage to define a taxon instead of just its name and level allows for correct handling of multiple taxa at the same level with the same name, but part of different higher level taxa (Figure \ref{text:taxonomy-string}).
+This is important for correct summary statistics and downstream tree visualization.
 Statistics calculated for each taxon include: the number of sequences, the taxonomic level, the parent taxon, and the child taxa. 
 
 
@@ -121,19 +121,19 @@ id      taxon                   level   name        count   parent  children
 
 
 
-\subsection*{Database subsampling}
+\subsection*{Database sub-sampling}
 
-In order to focus on a specific subset of an entire reference database, I made a python script that subsamples a FASTA reference database, taking into consideration the taxonomy encoded in the headers.
-This is often nessesary since refernece databases are very large and the time it takes to calculate a pair-wise distance matrix is proportional to the square of the number of sequences.
-Some taxa have much more sequences than are nessary.
+In order to focus on a specific subset of an entire reference database, I made a python script that sub-samples a FASTA reference database, taking into consideration the taxonomy encoded in the headers.
+This is often necessary since reference databases are very large and the time it takes to calculate a pair-wise distance matrix is proportional to the square of the number of sequences.
+Some taxa have much more sequences than are necessary.
 On the other hand, many taxa have too few sequences to characterize their sequence variation.
 These should be also removed so computational time can be devoted to more informative taxa. 
-There also can be inconsienties in the number of taxonomic levels specified, so some filtering is required to remove sequences with low-resuluton taxonomies. 
+There also can be inconsistencies in the number of taxonomic levels specified, so some filtering is required to remove sequences with low-resolution taxonomies. 
 
-Therefore, I have made a script called \texttt{fasta\_taxon\_subsample.py} that has the ability to subsample a refenrece database in a taxonomy-specific manner. 
-Taxa with too many sequences can be randomly subsampled and taxa with too few can be removed. 
-It uses the output of \texttt{fasta\_taxon\_statistics.py} (Figure \ref{text:taxon-statistics-output}) to decide which sequences are to be filtered out before it reads the refenrece database. 
-This allows it to reads the database one sequences at a time and thus it is able to process nearly any size of refernece database of data with minimal RAM.
+Therefore, I have made a script called \texttt{fasta\_taxon\_subsample.py} that has the ability to sub-sample a reference database in a taxonomy-specific manner. 
+Taxa with too many sequences can be randomly sub-sampled and taxa with too few can be removed. 
+It uses the output of \texttt{fasta\_taxon\_statistics.py} (Figure \ref{text:taxon-statistics-output}) to decide which sequences are to be filtered out before it reads the reference database. 
+This allows it to reads the database one sequences at a time and thus it is able to process nearly any size of reference database of data with minimal RAM.
 It can also filter out sequences that are not identified to a specific set of taxonomic levels. 
 Specific taxa can also be required or removed, so that the user can focus on specific groups of organisms.  
 
@@ -141,39 +141,39 @@ Specific taxa can also be required or removed, so that the user can focus on spe
 \subsection*{Distance matrix calculation}
 
 One of the most important and computationally intensive steps in this procedure is that calculation of a pairwise distance matrix between all sequences. 
-Any program or distance metric can be used; the choice depends of the type of sequence data availble and the characterics of the locus analyzed.
-If the refernece datbase is a multiple sequences alignment, then a program such as \texttt{fdnadist} from the EMBOSS package can be used. 
+Any program or distance metric can be used; the choice depends of the type of sequence data available and the characteristics of the locus analyzed.
+If the reference database is a multiple sequences alignment, then a program such as \texttt{fdnadist} from the EMBOSS package can be used. 
 If the sequences are unaligned and all of the same locus, than a pairwise global alignment tool, such as the \texttt{pair.seqs} command from the Mothur package can be used. 
-If the sequences are unaligned and contain the locus of interest, but are not globally alignable, it might be possible to use \textit{in silico} PCR, using a program such as \texttt{isPCR}, to extract amplicon sequenes so they can be globally aligned. 
+If the sequences are unaligned and contain the locus of interest, but are not globally alignable, it might be possible to use \textit{in silico} PCR, using a program such as \texttt{isPCR}, to extract amplicon sequences so they can be globally aligned. 
 This method adds a whole new level of complexity and will be explained further in the discussion. 
-Finally, if the sequences do not share any genes it might still be possible to obtain a rough distance using tetranucleotide frequencey or GC content. 
+Finally, if the sequences do not share any genes it might still be possible to obtain a rough distance using tetranucleotide frequency or GC content. 
 
-After a distance matrix is obtained using one the methods described above it might be nessesary to rename the rows and columns as the sequence taxonomy headers.
+After a distance matrix is obtained using one the methods described above it might be necessary to rename the rows and columns as the sequence taxonomy headers.
 To do this I have written a simple script called \texttt{reformat\_matrix.py}. 
 Currently this script only accepts the Phylip format outputted by \texttt{fdnadist}, but I plan to add support for other formats as needed.
 
 \subsection*{Calculation of taxon-specific distance statistics}
 
-once a correctly formatted distance matrix is produced, it can be subsampled for each taxon and statistics cacluated. 
+once a correctly formatted distance matrix is produced, it can be sub-sampled for each taxon and statistics calculated. 
 The most important of these are the optimal clustering threshold and the expected error rate at that threshold. 
 The optimal clustering threshold can be calculated for any taxonomic level (e.g. clustering species vs clustering genera).
 
-To do this and visulize the results, I wrote an R script. 
-For clustering a given taxonomic level, it subsamples the entire distance matrix for each taxon and calucluats the distribution of inter-taxon and intra-taxon distances, the optimal clustering threshold, and error rate. 
-The clustering threshold optimaization and error rate calculations are done using the \texttt{Spider} package function \texttt{threshOpt}. 
-The optimal clustering threshold is determined by clustering over a range of distance thresholds and pciking the threshold that minimizes the sum of the flase positive and false negative error rates. 
-False positives result from too low of a threshold, causing sequences to be classified differntly when they are actually the same for a given taxonomic level.
-False negatives result from too high of a threshold, causing sequences to be classified as the same when they are differnt. 
-Currently clustering at only one level at a time is supported, so the script needs to be run multiple times to get optimal thrtesholds for clusing differnt taxonomic levels. 
+To do this and visualize the results, I wrote an R script. 
+For clustering a given taxonomic level, it sub-samples the entire distance matrix for each taxon and calculates the distribution of inter-taxon and intra-taxon distances, the optimal clustering threshold, and error rate. 
+The clustering threshold optimization and error rate calculations are done using the \texttt{Spider} package function \texttt{threshOpt}. 
+The optimal clustering threshold is determined by clustering over a range of distance thresholds and picking the threshold that minimizes the sum of the false positive and false negative error rates. 
+False positives result from too low of a threshold, causing sequences to be classified differently when they are actually the same for a given taxonomic level.
+False negatives result from too high of a threshold, causing sequences to be classified as the same when they are different. 
+Currently clustering at only one level at a time is supported, so the script needs to be run multiple times to get optimal thresholds for clustering different taxonomic levels. 
 
-\subsection*{Visulization of taxon-specific distance statistics}
+\subsection*{Visualization of taxon-specific distance statistics}
 
-With such high dimentional data, effective visulization is key to discovering patterens.
+With such high dimension data, effective visualization is key to discovering patterns.
 I used the R packages \texttt{ggplot2} and \texttt{igraph} to make information-rich graphics for exploratory analysis.
-I designed a novel (as far as I know) form of displaying multidimentional data within a heirarchy by placing graphs produced by \texttt{ggplot2} into the nodes of a phylogenetic tree produced by \texttt{igraph}.
-This allows for the relationships of hundreds of taxa to be browsed at once in an intuative manner. 
-I also used colored nodes to dispaly the distrubution of taxon statistcs over an entire phylogeny, making large-scale patterns over taxonomic levels and linages apparent. 
-In additon, more conventional graphs dsiplaying the distribution of statistics at each taxonomic level are also produced. 
+I designed a novel (as far as I know) form of displaying multidimensional data within a hierarchy by placing graphs produced by \texttt{ggplot2} into the nodes of a phylogenetic tree produced by \texttt{igraph}.
+This allows for the relationships of hundreds of taxa to be browsed at once in an intuitive manner. 
+I also used colored nodes to display the distribution of taxon statistics over an entire phylogeny, making large-scale patterns over taxonomic levels and lineages apparent. 
+In addition, more conventional graphs displaying the distribution of statistics at each taxonomic level are also produced. 
 All these graphics are produces automatically and saved as PNG images in a defined file structure allowing for further automated analysis and integration of results. 
 
 \section*{Results}
@@ -181,29 +181,59 @@ All these graphics are produces automatically and saved as PNG images in a defin
 
 \subsection*{Construction of test data}
 
-To demonstrate the abilitties of this pipeline, I analyzed the Ribosomal Database Project (RDP) LSU refenrece multiple sequence alignment, testing it ability to differntiate a range of taxaonomic leves from species to class. 
+To demonstrate the abilities of this pipeline, I analyzed the Ribosomal Database Project (RDP) LSU reference multiple sequence alignment, testing it ability to differentiate a range of taxonomic levels from species to class. 
 The database contained 95,396 fungal LSU sequences and the aligned FASTA file was 2.0Gb.
 
-After formatting the database using \texttt{fasta\_taxon\_statistics.py}, I used \texttt{fasta\_taxon\_statistics.py} to calculate initial taxon-specific statistcs for the entire database. 
-After appending genus and species information (if present in the organism name) onto the taxonomy string during formatiing, 37,733 dsitinct taxa were present. 
-I then filtered out any sequences that did not have the ful taxonomy string ranging from domain to species, resulting in a filtered database with 64,038 sequences and 28,897 taxa. 
-In order to reduce the database further and remove taxa with two few sequences, I subsampled each species to 10 sequences and removed species with less than 10 sequences. 
+After formatting the database using \texttt{fasta\_taxon\_statistics.py}, I used \texttt{fasta\_taxon\_statistics.py} to calculate initial taxon-specific statistics for the entire database. 
+After appending genus and species information (if present in the organism name) onto the taxonomy string during formatting, 37,733 distinct taxa were present. 
+I then filtered out any sequences that did not have the full taxonomy string ranging from domain to species, resulting in a filtered database with 64,038 sequences and 28,897 taxa. 
+In order to reduce the database further and remove taxa with two few sequences, I sub-sampled each species to 10 sequences and removed species with less than 10 sequences. 
 This reduced the database to 8,000 sequences comprising 1,339 taxa. 
 
-With this drastically reduced databse I used \texttt{fdnadist} to calculate a distance matrix using the Kimura 2-parameter evolution model, which allows for differnt rates of transitions and transversions. 
+With this drastically reduced database I used \texttt{fdnadist} to calculate a distance matrix using the Kimura 2-parameter evolution model, which allows for different rates of transitions and transversions. 
 This took about 2 hours to run on my desktop computer. 
-The resultant distance matrix and taxon-specific statistics for the subsampled database were the only inputs of used for downstream analysis. 
+The resultant distance matrix and taxon-specific statistics for the sub-sampled database were the only inputs of used for downstream analysis. 
 
-The ability of this refernece alignment to differntiate sequences of each taxon into every taxonomic level between speceis and class was tested. 
+The ability of this reference alignment to differentiate sequences of each taxon into every taxonomic level between species and class was tested. 
 
-\subsection*{Visulaiztions}
+\subsection*{Visualizations}
 
-Graphs were produced summarixing the distribution of both the optimal clustering threshold (Figure \ref{fig:threshold}) and the predicted error rate at that threshold (Figure \ref{fig:error}). 
-A more complicated set of graphs was made showing the false positive and false negative error rates of a range of clustering thresholds for each taxon(Figures \ref{fig:threshold_optimization_K2_Species} and \ref{fig:threshold_optimization_K2_Genus}).
-These are displaying the information form which the optimal threshold and error rate were caluculated. 
+Graphs were produced summarizing the distribution of both the optimal clustering threshold (Figure \ref{fig:threshold}) and the predicted error rate at that threshold (Figure \ref{fig:error}). 
+A more complicated set of graphs was made showing the false positive and false negative error rates of a range of clustering thresholds for each taxon (Figures \ref{fig:threshold_optimization_K2_Species} and \ref{fig:threshold_optimization_K2_Genus}).
+These are displaying the information form which the optimal threshold and error rate were calculated. 
 
+The average optimal clustering threshold for differentiating species is nearly equal across taxonomic levels at around 0.01 (Figure \ref{fig:threshold} \subref{fig:optimal_threshold_boxplot_K2_Species}. 
+For differentiating genera, it is also nearly equal, but around 0.03 (Figure \ref{fig:threshold} \subref{fig:optimal_threshold_boxplot_K2_Genus}). 
+However in both cases the distribution of optimal clustering thresholds is far from normal and changes between taxonomic levels (Figure \ref{fig:threshold} \subref{fig:optimal_threshold_distribution_K2_Species} and \subref{fig:optimal_threshold_distribution_K2_Genus}).
+Looking at optimal threshold values throughout the phylogeny, it appears that it is weakly associated with evolutionary history, but the extreme values are distributed throughout the tree (Figure \ref{fig:threshold} \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus}). 
+The effect of evolutionary history seems slightly more pronounced when clustering into genera. 
 
+The predicted error rate when clustering at the optimal threshold decreases with decreasing taxonomic level, when differentiating by both species and genera, but is consistently lower for genera (Figure \ref{fig:threshold} \subref{fig:optimal_error_boxplot_K2_Species} and \subref{fig:optimal_error_boxplot_K2_Genus}).
+This is expected since genera should be more diverged than species. 
+There seems to be an effect of evolutionary history on error rates since lineages tend to have similar values (Figure \ref{fig:threshold} \subref{fig:optimal_error_tree_K2_Species} and \subref{fig:optimal_error_tree_K2_Genus}).
 
+\section*{Discussion}
+
+\subsection{Implications for conventional metabarcoding}
+
+With even this first attempt using a test data set on a single locus (LSU) intriguing patterns are already becoming apparent that violate many assumptions made by researchers out of convenience. 
+Metabarcoding analysis pipelines and used distance-based clustering usually assume that the entirety of a large group has a similar inter-specific distance, such as 3\% PID for fungi ITS sequence. 
+Here we observe that the values for optimal inter-specific K2 thresholds of genera easily range from 0.0 to 0.1 (Figure \ref{threshold} \subref{optimal_threshold_distribution_K2_Species}). 
+The inter-genus distance covers twice that range  (Figure \ref{threshold} \subref{optimal_threshold_distribution_K2_Genus}). 
+Error rates at optimal thresholds show a similar amount of variation, even though they are calculated for each taxon separately (Figure \ref{fig:error}). 
+If they were calculated using a single universal threshold the variation in error rates would be even higher as a result of different optimal thresholds.
+This means that studies using LSU for all fungi at a single clustering threshold are often incorrectly differentiating species up to 50\% of the time (Figure \ref{error} \subref{optimal_error_boxplot_K2_Species}).
+
+\subsection*{Future directions}
+
+There are many was to enhance this analysis to provide more useful information. 
+Generating a confidence interval for estimates of the optimal clustering threshold and error rates would aid interpretation of the data.  
+The difference between false positive and false negative error rates for each taxon could be used to estimate the direction and degree of bias when estimating taxon diversity from numbers of OTUs.
+This information could be used to correct these counts. 
+Estimating the optimal threshold at for differentiating taxa below a each taxon might allow for novel hierarchical clustering algorithms that iterativly cluster and classify amplicon sequences one taxonomic level at a time, applying the appropriate threshold for each taxon and assigning a confidence for each assignment.
+Including an \textit{in silico} PCR step in the pipeline could take into account primer biases and allow for estimation of the relative effectiveness of a set of potential primers before an experiment. 
+There are also many ways the pipeline could be seeded up using recursion that would make it more useful for large analyses. 
+Finally, automated PDF report generation would allow researchers to quickly evaluate results by compiling the most important of the many graphs produced. 
 
 \begin{figure}[ht]
  \centering
@@ -237,7 +267,7 @@ These are displaying the information form which the optimal threshold and error 
    \label{fig:optimal_threshold_tree_K2_Genus}
    }
  \caption[fig:threshold]{%
-  Optimal distance threshold statistics for differnetiating speceis [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For fingures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0, blue is the maximum threshold, and green is the median.}
+  Optimal distance threshold statistics for differentiating species [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For figures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0, blue is the maximum threshold, and green is the median.}
  \label{fig:threshold}
 \end{figure}
 
@@ -275,23 +305,20 @@ These are displaying the information form which the optimal threshold and error 
    \label{fig:optimal_error_tree_K2_Genus}
    }
  \caption[fig:error]{%
-  Error rates at optimal threshold statistics for differnetiating speceis [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For fingures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0\%, green is 50\%, and blue is 100\%.}
+  Error rates at optimal threshold statistics for differentiating species [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For figures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0\%, green is 50\%, and blue is 100\%.}
  \label{fig:error}
 \end{figure}
 
 \begin{figure}[t]
 \includegraphics[width=\linewidth]{threshold_optimization_K2_Species}
-\caption{Threshold optimization graphs for differentating speceis. Each graph is a kernal density plot of false positive (blue ) fasle negatives (red) and cumulative error (black line). The y axis is relative frequency and the x axis is clustering threshold. The lowest point in the black line is the optimal threshold.}
+\caption{Threshold optimization graphs for differentiating species. Each graph is a kernel density plot of false positive (blue ) false negatives (red) and cumulative error (black line). The y axis is relative frequency and the x axis is clustering threshold. The lowest point in the black line is the optimal threshold.}
 \label{fig:threshold_optimization_K2_Species}
 \end{figure}
 
 \begin{figure}[t]
 \includegraphics[width=\linewidth]{threshold_optimization_K2_Genus}
-\caption{Threshold optimization graphs for differentating genera. Each graph is a kernal density plot of false positive (blue ) fasle negatives (red) and cumulative error (black line). The y axis is relative frequency and the x axis is clustering threshold. The lowest point in the black line is the optimal threshold.}
+\caption{Threshold optimization graphs for differentiating genera. Each graph is a kernel density plot of false positive (blue ) false negatives (red) and cumulative error (black line). The y axis is relative frequency and the x axis is clustering threshold. The lowest point in the black line is the optimal threshold.}
 \label{fig:threshold_optimization_K2_Genus}
 \end{figure}
-
-
-\section*{Discussion}
 
 \end{document}
