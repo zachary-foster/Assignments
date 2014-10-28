@@ -215,8 +215,8 @@ There seems to be an effect of evolutionary history on error rates since lineage
 
 \subsection*{Implications for conventional metabarcoding}
 
-With even this first attempt using a test data set on a single locus (LSU), intriguing patterns are already becoming apparent that violate many assumptions often made by researchers out of convenience. 
-Metabarcoding analysis pipelines and distance-based clustering usually assume that the entirety of a large group has a similar inter-specific distance, such as 3\% PID for fungi ITS sequence. 
+With even this first attempt using a test data set on a single locus (LSU), intriguing patterns are already becoming apparent that violate many assumptions of convenience often made by researchers. 
+Metabarcoding analysis pipelines and distance-based clustering usually assume that the entirety of a large group has a similar inter-specific distance, such as 0.03 PID for fungi ITS sequence. 
 Here we observe that the values for optimal inter-specific K2 thresholds of genera easily range from 0.0 to 0.1 (Figure \ref{fig:threshold} \subref{fig:optimal_threshold_distribution_K2_Species}). 
 The inter-genus distance covers twice that range  (Figure \ref{fig:threshold} \subref{fig:optimal_threshold_distribution_K2_Genus}). 
 Error rates at optimal thresholds show a similar amount of variation, even though they are calculated for each taxon separately (Figure \ref{fig:error}). 
@@ -231,7 +231,7 @@ The difference between false positive and false negative error rates for each ta
 This information could be used to correct these counts. 
 Estimating the optimal threshold for differentiating the taxa below each taxon might allow for novel hierarchical clustering algorithms that iterativly cluster and classify amplicon sequences one taxonomic level at a time, applying the appropriate threshold for each taxon and assigning a confidence for each assignment.
 Including an \textit{in silico} PCR step in the pipeline could take into account primer biases and allow for estimation of the relative effectiveness of a set of potential primers before an experiment. 
-There are also many ways the pipeline could be made faster up using recursion that would make it more useful for large analyses. 
+There are also many ways the pipeline could be made faster using recursion that would make it more useful for large analyses. 
 Finally, automated PDF report generation would allow researchers to quickly evaluate results by compiling the most important of the many graphs produced. 
 
 \begin{figure}[ht]
@@ -266,7 +266,7 @@ Finally, automated PDF report generation would allow researchers to quickly eval
    \label{fig:optimal_threshold_tree_K2_Genus}
    }
  \caption[fig:threshold]{%
-  Optimal distance threshold statistics for differentiating species [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For figures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0, blue is the maximum threshold, and green is the median.}
+  Optimal distance thresholds for differentiating species [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For figures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0, blue is the maximum threshold, and green is the median.}
  \label{fig:threshold}
 \end{figure}
 
@@ -304,7 +304,7 @@ Finally, automated PDF report generation would allow researchers to quickly eval
    \label{fig:optimal_error_tree_K2_Genus}
    }
  \caption[fig:error]{%
-  Error rates at optimal threshold statistics for differentiating species [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For figures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 0\%, green is 50\%, and blue is 100\%.}
+  Error rates at optimal thresholds for differentiating species [\subref{fig:optimal_threshold_boxplot_K2_Species} \subref{fig:optimal_threshold_distribution_K2_Species}, \subref{fig:optimal_threshold_tree_K2_Species}] and genera [\subref{fig:optimal_threshold_boxplot_K2_Genus} \subref{fig:optimal_threshold_distribution_K2_Genus}, \subref{fig:optimal_threshold_tree_K2_Genus}]. For figures \subref{fig:optimal_threshold_tree_K2_Species} and \subref{fig:optimal_threshold_tree_K2_Genus} red is 100\%, green is 50\%, and blue is 0\%.}
  \label{fig:error}
 \end{figure}
 

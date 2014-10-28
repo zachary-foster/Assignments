@@ -1,0 +1,45 @@
+ST 535: Homework 1
+========================================================
+
+### Zachary Foster
+
+1
+---
+
+```
+Stinson, K.A., Campbell, S.A., Powell, J.R., Wolfe, B.E., Callaway, R.M., Thelen, G.C., Hallett, S.G., Prati, D., and Klironomos J.N. 2006. Invasive Plant Suppresses the Growth of Native Tree Seedlings by Disrupting Belowground Mutualisms. Plos Biology 4-5: 727-731.
+```
+
+The effect of the invasive species *Alliaria petiolata* on arbuscular mycorrhizal (AMF) associations with native plants is evaluated using a variety of greenhouse growth experiments. Soil was collected from areas both colonized an uncolonized by *Alliaria petiolata* and half of each was sterilized. These 4 soil treatments were used to test:
+
+1. AMF colonization of seedlings of three native tree species.
+2. Biomass increases of seedlings of three native tree species.
+3. Effect of *Alliaria petiolata* on the previous two experiments
+4. Effect of *Alliaria petiolata* on AMF spore germination. 
+
+2
+---
+
+In most of the experiments, the experimental units were combinations of a plant and a soil treatments. For experiment 1, there were `(3 plants) x (4 soil types) = 12 treatments`. For the plant extract experiments, there were `(3 plants) x (5 extracts) = 15 treatments`. 
+
+3
+---
+
+In experiment 1, the four treatments were sterilized and unsterilized aliquots of soil colonized and uncolonized by *Alliaria petiolata*. The other experiments used extracts from *Alliaria petiolata*, the three native tree species, and water as a control. All experiments tested the growth of the three native tree species. 
+
+Since the units should identical besides the treatments applied, no randomization was used to apply treatments to units.
+
+4
+---
+
+There was no blinding as far as I can tell. 
+
+5
+---
+
+For most of the experiments, the responses measured were mychorrizal colonization and increase in plant biomass. One experiment measured AMF spore germination as well. 
+
+6
+---
+
+Single-factor ANOVA was used for all of the experiments. 

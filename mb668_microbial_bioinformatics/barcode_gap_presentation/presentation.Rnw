@@ -59,7 +59,7 @@
       \item Samples at much greater depth than shotgun metagenomics
       \item Established and curated databases available
       \item Relatively easy to analyze results
-      \item Relatively east to construct reference databases using standard barcoding
+      \item Relatively easy to construct reference databases using standard barcoding
     \end{itemize}
   \end{minipage}%
 \end{frame}
