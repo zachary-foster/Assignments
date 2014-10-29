@@ -1,10 +1,11 @@
 .Rproj.user
 .Rhistory
-.RData
+*.RData
 *.bib
 *.bbl
 *.run.xml
 *.tex
 *.gz
 *.log
-*/figure-latex/*
+*.rdx
+*.rdb
