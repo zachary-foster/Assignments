@@ -1,6 +1,6 @@
 ---
 title: "Homework 4"
-author: "Zachary Foster"
+author: "Zachary Foster, Elizabeth Orning, Sarah Nalven, Spencer Ledoux"
 date: "10/28/2014"
 output: pdf_document
 ---
@@ -14,6 +14,7 @@ library(reshape2)
 library(ggplot2)
 library(grid)
 library(plyr)
+library(glmulti)
 opts_chunk$set(fig.width = 8, message = FALSE, warning = FALSE)
 ```
 
@@ -87,9 +88,57 @@ ggplot(scores, aes(x = size, y = value, color = best, size = best)) +
 
 ### All subsets with interactions
 
+The R package [`glmulti`](http://www.jstatsoft.org/v34/i12/paper) allows for all subsets model selection with testing of all two way interactions. 
+When interactions are included the number of potential models quickly increases with number oof explanatory variables used.
+
 ```{r}
+# Calculate the number of potential models to evaluate -------------------------
+dont_print <- capture.output(
+  count_with_iter <- sapply(1:7, function(x)
+  glmulti(y = names(response), xr = names(explanatory[1:x]), data = data,
+          level = 2, crit = "bic", method = "d")))
+dont_print <- capture.output(
+  count_without_iter <- sapply(1:length(explanatory), function(x)
+  glmulti(y = names(response), xr = names(explanatory[1:x]), data = data,
+          level = 1, crit = "bic", method = "d")))
+# Graph results ----------------------------------------------------------------
+counts <- data.frame(size = 1:length(explanatory),
+                     with = c(count_with_iter, rep(NA, 8)),
+                     without = count_without_iter)
+counts <- melt(counts, id.vars = "size")
+levels(counts$variable) <- c('With interactions', 'Without interactions')
+ggplot(counts, aes(x = size, y = value, group = variable, color = variable)) +
+  geom_line() +
+  geom_point() +
+  scale_y_log10() +
+  labs(x = "Number of explanatory variables considered",
+       y = "Number of models to evaluate", 
+       title = "The effect of interactions on size of model space", 
+       color = "")
+```
+
+For this reason, it is not pheasable to test all 15 aviable explanatory varaibles with interactions. 
+Perliminary testing indicated that only 6 explanatory varaibles can be evaluated. 
+We decided to exclude `LAT`, `LON`, and `ELEV` since their effects, if any, are likly due to climatic effects on other explanatory variables. 
+`LK_HA` was excluded because it is probably corelated with `AV.DEP`, which is a much stronger predictor, as determined by the naive all-subsets analysis. 
+Using similar logic, `URB.TOT` was excluded, since `POPDENKM` likly measures the same effect and was a strong predictor in the first analysis. 
+Of the planktonic variables, all but `MACRO.R` and `MICRO.R` were exculded.
+The other planktonic variables measure the abundance of differnet taxa. 
+Since none of the taxa are photosynthetic and likly lack pigment, the size of the organism is probably more important than taxonomic group.
+This leaves `AG.TOT`, `AV.DEP`, `LOG.POPDENKM`, `LOG.TOT.RD`, `MACRO.R`, and `MICRO.R` as the predictors that will be evaluated when considering interactions. 
+
+```{r, eval=FALSE}
 relevant_exp <- c("AG.TOT", "AV.DEP", "LOG.POPDENKM", "LOG.TOT.RD", "MACRO.R", "MICRO.R")
 glmulti_model <- glmulti(y = names(response), xr = relevant_exp, data = data, level = 2, crit = "bic")
 save.image()
 ```
+
+```{r}
+load(file = ".RData")
+plot(glmulti_model)
+glmulti_model@objects[[1]]
+glmulti_model@objects[[1]]$formula
+BIC(glmulti_model@objects[[1]])
+```
+
 
