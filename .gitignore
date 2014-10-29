@@ -7,3 +7,5 @@
 *.tex
 *.gz
 *.log
+*_cache/*
+*_files/*
