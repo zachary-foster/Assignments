@@ -11,3 +11,5 @@
 *.rdb
 *.back
 unnamed-chunk-*
+__packages
+html/*
