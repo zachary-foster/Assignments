@@ -10,3 +10,4 @@
 *.rdx
 *.rdb
 *.back
+unnamed-chunk-*
