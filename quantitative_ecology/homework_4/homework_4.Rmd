@@ -21,14 +21,17 @@ opts_chunk$set(fig.width = 8, message = FALSE, warning = FALSE)
 ### Data preparation
 
 ```{r}
+# Read input data --------------------------------------------------------------
 data <- read.table("emap.build08.txt", header = TRUE)
+data <- data[ , !(names(data) %in% c("LAT", "LON"))]
+# Log varaibles ----------------------------------------------------------------
 vars_to_log <- c("LK.HA", "POPDENKM", "TOT.RD")
 data[vars_to_log] <- lapply(data[vars_to_log], function(x) log(x + 1))
 names(data) <- ifelse(names(data) %in% vars_to_log,
                       paste("LOG", names(data), sep = "."), 
                       names(data))
-explanatory <- data[, -3]
-response <-  data[, 3, drop = FALSE]
+explanatory <- data[ , names(data) != "SECMEAN"]
+response <-  data[ , "SECMEAN", drop = FALSE]
 ```
 
 ### Naive all subsets selction without interactions
@@ -39,6 +42,7 @@ The `regsubsets` function from the `leaps` package provides a simple way of doin
 # Conduct all subsets model evaluation -----------------------------------------
 naive_raw <- regsubsets(explanatory, response[[1]], nvmax = length(explanatory))
 naive_results <- summary(naive_raw)
+naive_results$bic <- naive_results$bic + bic(lm(data$SECMEAN~1))
 
 # Graph all subsets results ----------------------------------------------------
 models <- melt(naive_results$which,
@@ -103,7 +107,7 @@ dont_print <- capture.output(
           level = 1, crit = "bic", method = "d")))
 # Graph results ----------------------------------------------------------------
 counts <- data.frame(size = 1:length(explanatory),
-                     with = c(count_with_iter, rep(NA, 8)),
+                     with = c(count_with_iter, rep(NA, length(explanatory) - 7)),
                      without = count_without_iter)
 counts <- melt(counts, id.vars = "size")
 levels(counts$variable) <- c('With interactions', 'Without interactions')
@@ -138,7 +142,7 @@ load(file = ".RData")
 plot(glmulti_model)
 glmulti_model@objects[[1]]
 glmulti_model@objects[[1]]$formula
-BIC(glmulti_model@objects[[1]])
+bic(glmulti_model@objects[[1]])
 ```
 
 
