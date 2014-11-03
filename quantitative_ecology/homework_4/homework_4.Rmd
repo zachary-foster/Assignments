@@ -88,7 +88,21 @@ ggplot(scores, aes(x = size, y = value, color = best, size = best)) +
   theme(legend.position = "none",
         panel.grid.minor = element_blank()) 
 
+naive_best_model <- lm(SECMEAN ~ 1 + AV.DEP + AG.TOT + LOG.TOT.RD + CAL.R, data = data)
+naive_best_model
 ```
+
+$$
+  \begin{aligned}
+  X_{D}&=\mbox{Estimated mean depth (m)} \\
+  X_{W}&=\mbox{Percent watershed agricultural} \\
+  X_{R}&=\mbox{Meters of road in watershed} \\
+  X_{C}&=\mbox{Number of calanoid species} \\
+  Y&=\mbox{Secchi depth (m)}
+  \end{aligned}
+$$
+
+$$Y = 2.623 + 0.322 X_{C} + 0.256X_{D} - 0.018X_{W} - 0.109ln(X_{R} + 1)$$
 
 ### All subsets with interactions
 
@@ -144,5 +158,17 @@ glmulti_model@objects[[1]]
 glmulti_model@objects[[1]]$formula
 bic(glmulti_model@objects[[1]])
 ```
+
+$$
+  \begin{aligned}
+  X_{D}&=\mbox{Estimated mean depth (m)} \\
+  X_{W}&=\mbox{Percent watershed agricultural} \\
+  X_{R}&=\mbox{Meters of road in watershed} \\
+  X_{M}&=\mbox{Number of macrozooplankton species} \\
+  Y&=\mbox{Secchi depth} (m)
+  \end{aligned}
+$$
+
+$$Y = 1.417 + 0.931X_{D} - 0.143ln(X_{R} + 1)  - 0.033X_{D}ln(X_{R} + 1) - 0.003X_{M}X_{W} - 0.043X_{D}X_{M} + 0.031ln(X_{R} + 1)X_{M}$$
 
 
