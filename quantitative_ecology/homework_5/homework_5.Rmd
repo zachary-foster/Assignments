@@ -5,30 +5,94 @@ date: "11/06/2014"
 output: pdf_document
 ---
 
-### Prepare input data
-
-```{r}
-larvae_count <- 0:12
-sample_count <- c(173, 74, 27, 14, 9, 5, 4, 2, 0, 0, 1, 1, 1)
-data <- rep(larvae_count, sample_count)
-hist(data)
+```{r, echo=FALSE}
+library(knitr)
+library(reshape2)
+library(ggplot2)
+library(grid)
+library(plyr)
+opts_chunk$set(fig.width = 8, fig.height = 2.9, message = FALSE, warning = FALSE)
 ```
 
-### Find the k that makes the following function equal to zero
+
+Preparation of input data
+-------------------------
 
 ```{r}
-# Note that parameters besides k in the function below are supplied as option defaults.
-#  The uniroot function that calls f will only change k over the given interval. 
-f <- function(k, N = length(data), N0 = sum(data == 0), xbar = mean(data)) {
-  log(N/N0) - k * log(1 + xbar/k)  
+larvae <- 0:12
+counts <- c(173, 74, 27, 14, 9, 5, 4, 2, 0, 0, 1, 1, 1)
+data <- rep(larvae, counts)
+```
+
+Goodness of fit of the Poisson distribution
+-------------------------------------------
+
+```{r}
+# Generate poisson distribution based on mean larvae count ------------------------------
+poisson <- dpois(larvae, lambda = mean(data))
+poisson <- c(poisson, 1 - sum(poisson))
+poisson <- poisson * sum(counts)
+# Compare distributions -----------------------------------------------------------------
+compare_dist <- function(expected) {
+  # Find which values to lump so that there are at least 2 - - - - - - - - - - -  - - - -
+  lump_at <- sum(sapply(seq_along(expected),
+                        function(i) sum(expected[i:length(expected)]) > 2)) - 1
+  lumped <- lump_at:length(expected)
+  # Create data frame with obersved and expected  - - - - - - - - - - - - - - - - - - - -
+  comp <- data.frame("observed" = c(c(counts, 0)[-lumped], sum(c(counts, 0)[lumped])),
+                     "expected" = c(expected[-lumped], sum(expected[lumped])), 
+                     "count" = c(larvae[-lumped], paste0(">", larvae[lump_at - 1])))
+  # Do a Chi-squared test comparing the distributions - - - - - - - - - - - - - - - - - -
+  p_value <- 1 - pchisq(sum((comp$observed-comp$expected)^2/comp$expected), 2)
+  print(paste("Chi-squared p-value:", signif(p_value)))
+  return(comp)  
 }
-k_hat <- uniroot(f=f, interval=c(0.001, 100))$root
+comp <- compare_dist(poisson)
 ```
 
-### Generate expected counts
+
+```{r, echo=FALSE}
+m_comp <- melt(comp, id.vars = "count")
+ggplot(m_comp, aes(x = count, y = value, fill = variable)) +
+  geom_bar(stat="identity", position = "dodge") + 
+  labs(title = "Observed vs. poisson", 
+       x = "Number of larvae", 
+       y = "Number of samples", 
+       fill = "")
+```
+
+Jugding from both visual inspection of the observed distribtuion compared to the predicted poisson distribution as well as the chi-squared test results ($p=2.32\cdot10^{-14}$), I belive that the poisson is not a good fit for the observed data.
+
+Goodness of fit of the negative binomial distribution
+-----------------------------------------------------
 
 ```{r}
-prob <- dnbinom(x = larvae_count, size = k_hat, prob = k_hat/(k_hat + mean(data)))
-plot(prob)
+# Estimate k from number of zeros -------------------------------------------------------
+nbinome_k_estimate <- function(data) {
+  # Find the k that makes the following function equal to zero  - - - - - - - - - - - - -
+  f <- function(k, N = length(data), N0 = sum(data == 0), xbar = mean(data))
+    log(N/N0) - k * log(1 + xbar/k)  
+  uniroot(f=f, interval=c(0.001, 100))$root 
+}
+k_hat <- nbinome_k_estimate(data)
+# Generate negative binomial distribution -----------------------------------------------
+nbinome <- dnbinom(x = larvae, size = k_hat, prob = k_hat/(k_hat + mean(data)))
+nbinome <- c(nbinome, 1 - sum(nbinome))
+nbinome <- nbinome * sum(counts)
+# Compare distributions -----------------------------------------------------------------
+comp <- compare_dist(nbinome)
 ```
 
+```{r, echo=FALSE}
+m_comp <- melt(comp, id.vars = "count")
+ggplot(m_comp, aes(x = count, y = value, fill = variable)) +
+  geom_bar(stat="identity", position = "dodge") + 
+  labs(title = "Observed vs. negative binomial", 
+       x = "Number of larvae", 
+       y = "Number of samples", 
+       fill = "")
+```
+
+The negative binomial seems a much better fit to the observed data than the poisson.
+The values look much more similar to the abserved values and the chi-squared test for a differnece between the two distributions was insignificant ($p=0.21$), indicating that there is no reason to exclude the negative binomal as a potential model. 
+Without considering other potential models, the negative binomial is acceptable. 
