@@ -33,7 +33,7 @@ poisson <- dpois(larvae, lambda = mean(data))
 poisson <- c(poisson, 1 - sum(poisson))
 poisson <- poisson * sum(counts)
 # Compare distributions -----------------------------------------------------------------
-compare_dist <- function(expected) {
+compare_dist <- function(expected, df) {
   # Find which values to lump so that there are at least 2 - - - - - - - - - - -  - - - -
   lump_at <- sum(sapply(seq_along(expected),
                         function(i) sum(expected[i:length(expected)]) > 2)) - 1
@@ -43,11 +43,11 @@ compare_dist <- function(expected) {
                      "expected" = c(expected[-lumped], sum(expected[lumped])), 
                      "count" = c(larvae[-lumped], paste0(">", larvae[lump_at - 1])))
   # Do a Chi-squared test comparing the distributions - - - - - - - - - - - - - - - - - -
-  p_value <- 1 - pchisq(sum((comp$observed-comp$expected)^2/comp$expected), 2)
+  p_value <- 1 - pchisq(sum((comp$observed-comp$expected)^2/comp$expected), nrow(comp) - df)
   print(paste("Chi-squared p-value:", signif(p_value)))
   return(comp)  
 }
-comp <- compare_dist(poisson)
+comp <- compare_dist(poisson, 1)
 ```
 
 
@@ -61,7 +61,8 @@ ggplot(m_comp, aes(x = count, y = value, fill = variable)) +
        fill = "")
 ```
 
-Jugding from both visual inspection of the observed distribtuion compared to the predicted poisson distribution as well as the chi-squared test results ($p=2.32\cdot10^{-14}$), I belive that the poisson is not a good fit for the observed data.
+Before significance testing, larvae count categories with low values were summed such that their summed count was greater than 2.
+Judging from both visual inspection of the observed distribution compared to the predicted Poisson distribution as well as the chi-squared test results ($p=1.49\cdot10^{-13}$), I believe that the Poisson is not a good fit for the observed data.
 
 Goodness of fit of the negative binomial distribution
 -----------------------------------------------------
@@ -80,7 +81,7 @@ nbinome <- dnbinom(x = larvae, size = k_hat, prob = k_hat/(k_hat + mean(data)))
 nbinome <- c(nbinome, 1 - sum(nbinome))
 nbinome <- nbinome * sum(counts)
 # Compare distributions -----------------------------------------------------------------
-comp <- compare_dist(nbinome)
+comp <- compare_dist(nbinome, 2)
 ```
 
 ```{r, echo=FALSE}
@@ -93,6 +94,6 @@ ggplot(m_comp, aes(x = count, y = value, fill = variable)) +
        fill = "")
 ```
 
-The negative binomial seems a much better fit to the observed data than the poisson.
-The values look much more similar to the abserved values and the chi-squared test for a differnece between the two distributions was insignificant ($p=0.21$), indicating that there is no reason to exclude the negative binomal as a potential model. 
+The negative binomial seems a much better fit to the observed data than the Poisson.
+The values look much more similar to the observed values and the chi-squared test for a difference between the two distributions was insignificant ($p=0.799$), indicating that there is no reason to exclude the negative binomial as a potential model. 
 Without considering other potential models, the negative binomial is acceptable. 
