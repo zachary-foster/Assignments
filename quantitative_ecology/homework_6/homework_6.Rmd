@@ -1,0 +1,124 @@
+---
+title: "Homework 6"
+author: "Zachary Foster"
+date: "11/11/2014"
+output: pdf_document
+---
+
+```{r, echo=FALSE}
+library(knitr)
+library(reshape2)
+library(ggplot2)
+library(grid)
+library(gridExtra)
+library(plyr)
+library(scales)
+opts_chunk$set(fig.width = 8, fig.height = 5, message = FALSE, warning = FALSE, echo = FALSE)
+```
+
+
+Data set 1
+==========
+
+
+
+```{r}
+# prepare data
+data_1 <- read.table("birddata1.txt", header = TRUE)
+data_2 <- read.table("birddata2.txt", header = TRUE)
+data_1$site <- as.factor(paste("Site", data_1$site))
+data_2$site <- as.factor(paste("Site", data_2$site))
+```
+
+```{r}
+# Summarize per site
+site_summary <- function(x) {
+  out <- aggregate(x[-1], x[1], FUN = mean)
+  low <- aggregate(x[-1], x[1], function(x) quantile(x, probs = c(.10)))[-1]
+  high <- aggregate(x[-1], x[1], function(x) quantile(x, probs = c(.90)))[-1]
+  names(low) <- paste0(names(low), "_low")
+  names(high) <- paste0(names(high), "_high")
+  cbind(out, low, high)
+  }
+landscape_1 <- site_summary(data_1)
+landscape_2 <- site_summary(data_2)
+```
+
+
+```{r, echo=FALSE, fig.height = 5}
+summary_graph <- function(data, summarized, title, x_label, y_label, var) {
+  grid.newpage()
+  vp_down <- viewport(x = .5, y = 0, width = 1, height = .7, just = "bottom")
+  pushViewport(vp_down)
+  vp_p2 <- viewport(x = .5, y = 0, width = 1, height = .8, just = "bottom")
+  pushViewport(vp_p2)
+  p2 <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
+    geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = summarized, aes_string(x = var, y = "rich", group = 1), method = lm) +
+    stat_density2d(alpha = .03, aes_string(fill = "site", color = NULL), geom="polygon", n = 50, bins=10) +
+    geom_point(alpha = .4) +
+    geom_point(data = summarized, aes_string(x = var, y = "rich", color = "site", size = 15)) +
+    geom_errorbar(data = summarized, aes_string(x = var, y = "rich", ymin = "rich_low", ymax = "rich_high", width = 0, size = 4)) +
+    geom_errorbarh(data = summarized, aes_string(x = var, y = "rich", xmin = paste0(var, "_low"), xmax = paste0(var, "_high"), height = 0, size = 4)) +
+    guides(color = FALSE, site = FALSE, fill = FALSE, size = FALSE) +
+    labs(x = x_label, 
+         y = y_label) +
+    scale_x_continuous(expand = c(0, 0)) +
+    theme(panel.grid = element_blank(), 
+          plot.margin = unit(c(0,0,0,0), "cm"), 
+          panel.background = element_blank())
+  print(p2, newpage = FALSE)
+  upViewport()
+  vp_p3 <- viewport(x = .5, y = 1, width = 1, height = .2, just = "top")
+  pushViewport(vp_p3)
+  p3 <- ggplot(data, aes_string(x = var, color = "site", fill = "site")) +
+    geom_density(alpha = .2, position = "identity", adjust = .8) +
+    guides(color = FALSE, fill = FALSE) +
+    scale_x_continuous(expand = c(0, 0)) +
+    theme(panel.grid = element_blank(), 
+          axis.ticks = element_blank(), 
+          axis.text  = element_blank(), 
+          axis.title = element_blank(), 
+          plot.margin = unit(c(0, 0, 0, .7), "cm"),
+          panel.background = element_blank())
+  print(p3, newpage = FALSE)
+  upViewport()
+  upViewport()
+  vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
+  pushViewport(vp_up)
+  p1 <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
+    geom_point() +
+    geom_smooth(method = lm) +
+    facet_wrap( ~ site, scales = "free", nrow = 1) +
+    guides(color = FALSE) +
+    labs(title = title) +
+    scale_x_continuous(expand = c(0, 0)) +
+    theme(panel.grid = element_blank(), 
+          axis.ticks = element_blank(), 
+          axis.text  = element_blank(), 
+          axis.title = element_blank(), 
+          plot.margin = unit(c(0, 0, 0, .7), "cm"), 
+          panel.margin = unit(0, "cm"))
+  print(p1, newpage = FALSE)
+  
+  }
+summary_graph(data_1, landscape_1, 
+              "Relationship between productivity and species richness in data set 1",
+              "Gross primary productivity", "Bird richness", "gpp")
+```
+
+```{r, echo=FALSE, fig.height = 5}
+summary_graph(data_1, landscape_1, 
+              "Relationship between complexity and species richness in data set 1",
+              "Normalized difference vegetation index", "Bird richness", "ndvi")
+```
+
+
+Data set 2
+==========
+
+```{r, echo=FALSE, fig.height = 5}
+summary_graph(data_2, landscape_2, 
+              "Relationship between complexity and species richness in data set 2",
+              "Structural complexity index", "Bird richness", "sci")
+```
+
