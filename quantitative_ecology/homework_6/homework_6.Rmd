@@ -48,10 +48,11 @@ landscape_2 <- site_summary(data_2)
 ```{r, echo=FALSE, fig.height = 5}
 summary_graph <- function(data, summarized, title, x_label, y_label, var) {
   # X density plots --------------------------------------------------------------------------------
-  x_density <- ggplot(data, aes_string(x = var, color = "site", fill = "site")) +
+  x_density <- ggplot(data, aes_string(x = var, color = "site", fill = "site", y='..scaled..')) +
     geom_density(alpha = .2, position = "identity", adjust = .8) +
     guides(color = FALSE, fill = FALSE) +
-    scale_x_continuous(expand = c(0, 0)) +
+    scale_x_continuous(expand = c(0, 0)) + 
+    coord_cartesian(ylim = c(0, 1.05), xlim = range(data[[var]])) +
     theme(panel.grid = element_blank(), 
           axis.ticks = element_blank(), 
           axis.text  = element_blank(), 
@@ -80,63 +81,61 @@ summary_graph <- function(data, summarized, title, x_label, y_label, var) {
           plot.margin = unit(c(0,0,0,0), "cm"), 
           panel.margin = unit(c(0, 0, 0, 0), "cm"),
           panel.background = element_blank())
-  browser()
   gt <- ggplot_gtable(ggplot_build(xy_scatter))
   xy_scatter <- ggplotGrob(xy_scatter)
   # Y density plots --------------------------------------------------------------------------------
-  y_density <- ggplot(data, aes_string(x = "rich", color = "site", fill = "site")) +
-    geom_density(alpha = .2, position = "identity", adjust = .8) +
-    coord_flip() +
-    scale_x_continuous(expand = c(0, 0)) +
-#     coord_cartesian(ylim=c(0,100), xlim = range(data[[var]])) +
-    guides(color = FALSE, fill = FALSE) +
-    theme(panel.grid = element_blank(), 
-          axis.ticks = element_blank(), 
-          axis.text  = element_blank(), 
-          axis.title = element_blank(),
-          axis.line = element_blank(),
-          plot.margin = unit(c(0, 0, 0, 0), "cm"),
-          panel.margin = unit(c(0, 0, 0, 0), "cm"),
-          legend.margin = unit(0, "cm"),
-          axis.ticks.margin = unit(0, "cm"),
-          panel.background = element_blank())
-  gt <- ggplot_gtable(ggplot_build(y_density))
-  ge <- subset(gt$layout, name == "panel")
-  y_density <- gt[ge$t:ge$b, ge$l:ge$r]
-  #   upViewport()
-  #   vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
-  #   pushViewport(vp_up)
-  #   p1 <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
-  #     geom_point() +
-  #     geom_smooth(method = lm) +
-  #     facet_wrap( ~ site, scales = "free", nrow = 1) +
-  #     guides(color = FALSE) +
-  #     labs(title = title) +
-  #     scale_x_continuous(expand = c(0, 0)) +
-  #     theme(panel.grid = element_blank(), 
-  #           axis.ticks = element_blank(), 
-  #           axis.text  = element_blank(), 
-  #           axis.title = element_blank(), 
-  #           plot.margin = unit(c(0, 0, 0, .7), "cm"), 
-  #           panel.margin = unit(0, "cm"))
-  #   print(p1, newpage = FALSE)
-  
-  # Graph plots in grid ----------------------------------------------------------------------------
-  grid.newpage()
-  pushViewport(viewport(layout=grid.layout(nrow = 2, ncol = 2,
-                                           widths = unit(c(0.8, 0.2), "null"),
-                                           heights = unit(c(0.2, 0.8), "null"))))
-  draw_plot <- function(row, col, my_plot) {
-    pushViewport(viewport(layout.pos.col = col, layout.pos.row = row))
-#    grid.rect()
-#     print(my_plot, newpage = FALSE)
-   grid.draw(my_plot)
-   upViewport()
-    }
-  draw_plot(1, 1, x_density)
-  draw_plot(2, 1, xy_scatter)
-  draw_plot(2, 2, y_density)
+  y_density <- ggplot(data, aes_string(x = "rich", color = "site", fill = "site", y='..scaled..')) +
+  geom_density(alpha = .2, position = "identity", adjust = .8) +
+  scale_x_continuous(expand = c(0, 0)) +
+  coord_flip(ylim = c(0, 1.05), xlim = range(data$rich)) +
+  guides(color = FALSE, fill = FALSE) +
+  theme(panel.grid = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.text  = element_blank(), 
+        axis.title = element_blank(),
+        axis.line = element_blank(),
+        plot.margin = unit(c(0, 0, 0, 0), "cm"),
+        panel.margin = unit(c(0, 0, 0, 0), "cm"),
+        legend.margin = unit(0, "cm"),
+        axis.ticks.margin = unit(0, "cm"),
+        panel.background = element_blank())
+gt <- ggplot_gtable(ggplot_build(y_density))
+ge <- subset(gt$layout, name == "panel")
+y_density <- gt[ge$t:ge$b, ge$l:ge$r]
+#   upViewport()
+#   vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
+#   pushViewport(vp_up)
+#   p1 <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
+#     geom_point() +
+#     geom_smooth(method = lm) +
+#     facet_wrap( ~ site, scales = "free", nrow = 1) +
+#     guides(color = FALSE) +
+#     labs(title = title) +
+#     scale_x_continuous(expand = c(0, 0)) +
+#     theme(panel.grid = element_blank(), 
+#           axis.ticks = element_blank(), 
+#           axis.text  = element_blank(), 
+#           axis.title = element_blank(), 
+#           plot.margin = unit(c(0, 0, 0, .7), "cm"), 
+#           panel.margin = unit(0, "cm"))
+#   print(p1, newpage = FALSE)
+
+# Graph plots in grid ----------------------------------------------------------------------------
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(nrow = 2, ncol = 2,
+                                         widths = unit(c(0.8, 0.2), "null"),
+                                         heights = unit(c(0.2, 0.8), "null"))))
+draw_plot <- function(row, col, my_plot) {
+  pushViewport(viewport(layout.pos.col = col, layout.pos.row = row))
+  #    grid.rect()
+  #     print(my_plot, newpage = FALSE)
+  grid.draw(my_plot)
+  upViewport()
   }
+draw_plot(1, 1, x_density)
+draw_plot(2, 1, xy_scatter)
+draw_plot(2, 2, y_density)
+}
 summary_graph(data_1, landscape_1, 
               "Relationship between productivity and species richness in data set 1",
               "Gross primary productivity", "Bird richness", "gpp")
