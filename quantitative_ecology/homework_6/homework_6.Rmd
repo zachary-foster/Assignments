@@ -47,30 +47,8 @@ landscape_2 <- site_summary(data_2)
 
 ```{r, echo=FALSE, fig.height = 5}
 summary_graph <- function(data, summarized, title, x_label, y_label, var) {
-  grid.newpage()
-  vp_down <- viewport(x = .5, y = 0, width = 1, height = .7, just = "bottom")
-  pushViewport(vp_down)
-  vp_p2 <- viewport(x = .5, y = 0, width = 1, height = .8, just = "bottom")
-  pushViewport(vp_p2)
-  p2 <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
-    geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = summarized, aes_string(x = var, y = "rich", group = 1), method = lm) +
-    stat_density2d(alpha = .03, aes_string(fill = "site", color = NULL), geom="polygon", n = 50, bins=10) +
-    geom_point(alpha = .4) +
-    geom_point(data = summarized, aes_string(x = var, y = "rich", color = "site", size = 15)) +
-    geom_errorbar(data = summarized, aes_string(x = var, y = "rich", ymin = "rich_low", ymax = "rich_high", width = 0, size = 4)) +
-    geom_errorbarh(data = summarized, aes_string(x = var, y = "rich", xmin = paste0(var, "_low"), xmax = paste0(var, "_high"), height = 0, size = 4)) +
-    guides(color = FALSE, site = FALSE, fill = FALSE, size = FALSE) +
-    labs(x = x_label, 
-         y = y_label) +
-    scale_x_continuous(expand = c(0, 0)) +
-    theme(panel.grid = element_blank(), 
-          plot.margin = unit(c(0,0,0,0), "cm"), 
-          panel.background = element_blank())
-  print(p2, newpage = FALSE)
-  upViewport()
-  vp_p3 <- viewport(x = .5, y = 1, width = 1, height = .2, just = "top")
-  pushViewport(vp_p3)
-  p3 <- ggplot(data, aes_string(x = var, color = "site", fill = "site")) +
+  # X density plots --------------------------------------------------------------------------------
+  x_density <- ggplot(data, aes_string(x = var, color = "site", fill = "site")) +
     geom_density(alpha = .2, position = "identity", adjust = .8) +
     guides(color = FALSE, fill = FALSE) +
     scale_x_continuous(expand = c(0, 0)) +
@@ -78,28 +56,86 @@ summary_graph <- function(data, summarized, title, x_label, y_label, var) {
           axis.ticks = element_blank(), 
           axis.text  = element_blank(), 
           axis.title = element_blank(), 
-          plot.margin = unit(c(0, 0, 0, .7), "cm"),
+          plot.margin = unit(c(0, 0, 0, 0), "cm"),
+          panel.margin = unit(c(0, 0, 0, 0), "cm"),
           panel.background = element_blank())
-  print(p3, newpage = FALSE)
-  upViewport()
-  upViewport()
-  vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
-  pushViewport(vp_up)
-  p1 <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
-    geom_point() +
-    geom_smooth(method = lm) +
-    facet_wrap( ~ site, scales = "free", nrow = 1) +
-    guides(color = FALSE) +
-    labs(title = title) +
+  gt <- ggplot_gtable(ggplot_build(x_density))
+  ge <- subset(gt$layout, name == "panel")
+  x_density <- gt[ge$t:ge$b, ge$l:ge$r]
+  # Main scatter plot ------------------------------------------------------------------------------
+  xy_scatter <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
+    geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = summarized, aes_string(x = var, y = "rich", group = 1), method = lm) +
+    stat_density2d(alpha = .01, aes_string(fill = "site", color = NULL), geom="polygon", n = 100, bins=100) +
+    geom_point(alpha = .4) +
+    geom_point(data = summarized, aes_string(x = var, y = "rich", color = "site", size = 15)) +
+    geom_errorbar(data = summarized, aes_string(x = var, y = "rich", ymin = "rich_low", ymax = "rich_high", width = 0, size = 4)) +
+    geom_errorbarh(data = summarized, aes_string(x = var, y = "rich", xmin = paste0(var, "_low"), xmax = paste0(var, "_high"), height = 0, size = 4)) +
+    guides(color = FALSE, site = FALSE, fill = FALSE, size = FALSE) +
+    labs(x = x_label, 
+         y = y_label) +
+    scale_x_continuous(expand = c(1, 0)) +
+    scale_y_continuous(expand = c(1, 0)) +
+    coord_cartesian(ylim=range(data$rich), xlim = range(data[[var]])) +
+    theme(panel.grid = element_blank(), 
+          plot.margin = unit(c(0,0,0,0), "cm"), 
+          panel.margin = unit(c(0, 0, 0, 0), "cm"),
+          panel.background = element_blank())
+  browser()
+  gt <- ggplot_gtable(ggplot_build(xy_scatter))
+  xy_scatter <- ggplotGrob(xy_scatter)
+  # Y density plots --------------------------------------------------------------------------------
+  y_density <- ggplot(data, aes_string(x = "rich", color = "site", fill = "site")) +
+    geom_density(alpha = .2, position = "identity", adjust = .8) +
+    coord_flip() +
     scale_x_continuous(expand = c(0, 0)) +
+#     coord_cartesian(ylim=c(0,100), xlim = range(data[[var]])) +
+    guides(color = FALSE, fill = FALSE) +
     theme(panel.grid = element_blank(), 
           axis.ticks = element_blank(), 
           axis.text  = element_blank(), 
-          axis.title = element_blank(), 
-          plot.margin = unit(c(0, 0, 0, .7), "cm"), 
-          panel.margin = unit(0, "cm"))
-  print(p1, newpage = FALSE)
+          axis.title = element_blank(),
+          axis.line = element_blank(),
+          plot.margin = unit(c(0, 0, 0, 0), "cm"),
+          panel.margin = unit(c(0, 0, 0, 0), "cm"),
+          legend.margin = unit(0, "cm"),
+          axis.ticks.margin = unit(0, "cm"),
+          panel.background = element_blank())
+  gt <- ggplot_gtable(ggplot_build(y_density))
+  ge <- subset(gt$layout, name == "panel")
+  y_density <- gt[ge$t:ge$b, ge$l:ge$r]
+  #   upViewport()
+  #   vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
+  #   pushViewport(vp_up)
+  #   p1 <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
+  #     geom_point() +
+  #     geom_smooth(method = lm) +
+  #     facet_wrap( ~ site, scales = "free", nrow = 1) +
+  #     guides(color = FALSE) +
+  #     labs(title = title) +
+  #     scale_x_continuous(expand = c(0, 0)) +
+  #     theme(panel.grid = element_blank(), 
+  #           axis.ticks = element_blank(), 
+  #           axis.text  = element_blank(), 
+  #           axis.title = element_blank(), 
+  #           plot.margin = unit(c(0, 0, 0, .7), "cm"), 
+  #           panel.margin = unit(0, "cm"))
+  #   print(p1, newpage = FALSE)
   
+  # Graph plots in grid ----------------------------------------------------------------------------
+  grid.newpage()
+  pushViewport(viewport(layout=grid.layout(nrow = 2, ncol = 2,
+                                           widths = unit(c(0.8, 0.2), "null"),
+                                           heights = unit(c(0.2, 0.8), "null"))))
+  draw_plot <- function(row, col, my_plot) {
+    pushViewport(viewport(layout.pos.col = col, layout.pos.row = row))
+#    grid.rect()
+#     print(my_plot, newpage = FALSE)
+   grid.draw(my_plot)
+   upViewport()
+    }
+  draw_plot(1, 1, x_density)
+  draw_plot(2, 1, xy_scatter)
+  draw_plot(2, 2, y_density)
   }
 summary_graph(data_1, landscape_1, 
               "Relationship between productivity and species richness in data set 1",
