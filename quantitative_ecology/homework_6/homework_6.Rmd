@@ -47,6 +47,12 @@ landscape_2 <- site_summary(data_2)
 
 ```{r, echo=FALSE, fig.height = 5}
 summary_graph <- function(data, summarized, title, x_label, y_label, var) {
+  get_ggplot2_part <- function(my_plot, part) {
+  my_build <- ggplot_build(my_plot)
+  my_table <- ggplot_gtable(my_build)
+  tmp <- subset(my_table$layout, name == part)
+  my_table[tmp$t:tmp$b, tmp$l:tmp$r]
+}
   # X density plots --------------------------------------------------------------------------------
   x_density <- ggplot(data, aes_string(x = var, color = "site", fill = "site", y='..scaled..')) +
     geom_density(alpha = .2, position = "identity", adjust = .8) +
@@ -60,9 +66,7 @@ summary_graph <- function(data, summarized, title, x_label, y_label, var) {
           plot.margin = unit(c(0, 0, 0, 0), "cm"),
           panel.margin = unit(c(0, 0, 0, 0), "cm"),
           panel.background = element_blank())
-  gt <- ggplot_gtable(ggplot_build(x_density))
-  ge <- subset(gt$layout, name == "panel")
-  x_density <- gt[ge$t:ge$b, ge$l:ge$r]
+  x_density <- get_ggplot2_part(x_density, "panel")
   # Main scatter plot ------------------------------------------------------------------------------
   xy_scatter <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
     geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = summarized, aes_string(x = var, y = "rich", group = 1), method = lm) +
@@ -81,8 +85,12 @@ summary_graph <- function(data, summarized, title, x_label, y_label, var) {
           plot.margin = unit(c(0,0,0,0), "cm"), 
           panel.margin = unit(c(0, 0, 0, 0), "cm"),
           panel.background = element_blank())
-  gt <- ggplot_gtable(ggplot_build(xy_scatter))
-  xy_scatter <- ggplotGrob(xy_scatter)
+  xy_scatter_panel <- get_ggplot2_part(xy_scatter, "panel")
+  xy_scatter_axis_l <- get_ggplot2_part(xy_scatter, "axis-l")
+  xy_scatter_axis_b <- get_ggplot2_part(xy_scatter, "axis-b")
+  xy_scatter_xlab <- get_ggplot2_part(xy_scatter, "xlab")
+  xy_scatter_ylab <- get_ggplot2_part(xy_scatter, "ylab")
+
   # Y density plots --------------------------------------------------------------------------------
   y_density <- ggplot(data, aes_string(x = "rich", color = "site", fill = "site", y='..scaled..')) +
   geom_density(alpha = .2, position = "identity", adjust = .8) +
@@ -99,9 +107,7 @@ summary_graph <- function(data, summarized, title, x_label, y_label, var) {
         legend.margin = unit(0, "cm"),
         axis.ticks.margin = unit(0, "cm"),
         panel.background = element_blank())
-gt <- ggplot_gtable(ggplot_build(y_density))
-ge <- subset(gt$layout, name == "panel")
-y_density <- gt[ge$t:ge$b, ge$l:ge$r]
+  y_density <- get_ggplot2_part(y_density, "panel")
 #   upViewport()
 #   vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
 #   pushViewport(vp_up)
@@ -122,9 +128,9 @@ y_density <- gt[ge$t:ge$b, ge$l:ge$r]
 
 # Graph plots in grid ----------------------------------------------------------------------------
 grid.newpage()
-pushViewport(viewport(layout=grid.layout(nrow = 2, ncol = 2,
-                                         widths = unit(c(0.8, 0.2), "null"),
-                                         heights = unit(c(0.2, 0.8), "null"))))
+pushViewport(viewport(layout=grid.layout(nrow = 4, ncol = 4,
+                                         widths = unit(c(0.05, 0.05, 0.7, 0.2), "null"),
+                                         heights = unit(c(0.2, 0.7, 0.05, 0.05), "null"))))
 draw_plot <- function(row, col, my_plot) {
   pushViewport(viewport(layout.pos.col = col, layout.pos.row = row))
   #    grid.rect()
@@ -132,9 +138,13 @@ draw_plot <- function(row, col, my_plot) {
   grid.draw(my_plot)
   upViewport()
   }
-draw_plot(1, 1, x_density)
-draw_plot(2, 1, xy_scatter)
-draw_plot(2, 2, y_density)
+draw_plot(1, 3, x_density)
+draw_plot(2, 1, xy_scatter_ylab)
+draw_plot(2, 2, xy_scatter_axis_l)
+draw_plot(2, 3, xy_scatter_panel)
+draw_plot(2, 4, y_density)
+draw_plot(3, 3, xy_scatter_axis_b)
+draw_plot(4, 3, xy_scatter_xlab)
 }
 summary_graph(data_1, landscape_1, 
               "Relationship between productivity and species richness in data set 1",
