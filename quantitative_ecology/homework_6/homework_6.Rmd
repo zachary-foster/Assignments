@@ -13,6 +13,7 @@ library(grid)
 library(gridExtra)
 library(plyr)
 library(scales)
+library(boot)
 opts_chunk$set(fig.width = 8, fig.height = 5, message = FALSE, warning = FALSE, echo = FALSE)
 ```
 
@@ -148,9 +149,10 @@ cqq_scatter(data_1, "site", "gpp", "rich",
 ```
 
 ```{r, echo=FALSE, fig.height = 5}
-cqq_scatter(data_1, landscape_1, 
-            "Relationship between complexity and species richness in data set 1",
-            "Normalized difference vegetation index", "Bird richness", "ndvi")
+cqq_scatter(data_1, "site", "ndvi", "rich", 
+            title = "Relationship between complexity and species richness in data set 1",
+            x_label = "Normalized difference vegetation index",
+            y_label = "Bird richness")
 ```
 
 
@@ -158,8 +160,9 @@ Data set 2
 ==========
 
 ```{r, echo=FALSE, fig.height = 5}
-cqq_scatter(data_2, landscape_2, 
-            "Relationship between complexity and species richness in data set 2",
-            "Structural complexity index", "Bird richness", "sci")
+cqq_scatter(data_2, "site", "sci", "rich", 
+            title = "Relationship between complexity and species richness in data set 2",
+            x_label = "Structural complexity index",
+            y_label = "Bird richness")
 ```
 
