@@ -46,115 +46,111 @@ landscape_2 <- site_summary(data_2)
 
 
 ```{r, echo=FALSE, fig.height = 5}
-summary_graph <- function(data, summarized, title, x_label, y_label, var) {
+cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quote(quant_1),
+                         y_label = quote(quant_2)) {
+  data[[cat_1]] <- as.factor(data[[cat_1]])
   get_ggplot2_part <- function(my_plot, part) {
-  my_build <- ggplot_build(my_plot)
-  my_table <- ggplot_gtable(my_build)
-  tmp <- subset(my_table$layout, name == part)
-  my_table[tmp$t:tmp$b, tmp$l:tmp$r]
-}
-  # X density plots --------------------------------------------------------------------------------
-  x_density <- ggplot(data, aes_string(x = var, color = "site", fill = "site", y='..scaled..')) +
-    geom_density(alpha = .2, position = "identity", adjust = .8) +
-    guides(color = FALSE, fill = FALSE) +
-    scale_x_continuous(expand = c(0, 0)) + 
-    coord_cartesian(ylim = c(0, 1.05), xlim = range(data[[var]])) +
-    theme(panel.grid = element_blank(), 
-          axis.ticks = element_blank(), 
-          axis.text  = element_blank(), 
-          axis.title = element_blank(), 
-          plot.margin = unit(c(0, 0, 0, 0), "cm"),
-          panel.margin = unit(c(0, 0, 0, 0), "cm"),
-          panel.background = element_blank())
-  x_density <- get_ggplot2_part(x_density, "panel")
+    my_build <- ggplot_build(my_plot)
+    my_table <- ggplot_gtable(my_build)
+    tmp <- subset(my_table$layout, name == part)
+    my_table[tmp$t:tmp$b, tmp$l:tmp$r]
+    }
+  common_theme <- theme(panel.grid = element_blank(),
+                        plot.margin = unit(c(0, 0, 0, 0), "cm"),
+                        panel.margin = unit(c(0, 0, 0, 0), "cm"),
+                        panel.background = element_blank())
+  # calculate summary statistics -------------------------------------------------------------------
+  get_ci <- function(x) {
+    my_mean <- function(x, i) mean(x[i])
+    ci <- dlply(data, "site",
+                function(a) boot.ci(boot(a[[x]], R = 1000, statistic = my_mean), type = "norm")$normal)
+    ci <- as.data.frame(matrix(unlist(ci), ncol = 3, byrow = TRUE))
+    names(ci) <- c("conf", "low", "high")
+    return(ci)
+    }
+  means <- aggregate(data[-1], data[1], FUN = mean)
+  quant_1_ci <- cbind(means, get_ci(quant_1))
+  quant_2_ci <- cbind(means, get_ci(quant_2))
+  # density plots ----------------------------------------------------------------------------------
+  density_plot <- function(quant_1, cat_1, flip = FALSE) {
+    out <- ggplot(data, aes_string(x = quant_1, color = cat_1, fill = cat_1, y='..scaled..')) +
+      geom_density(alpha = .2, position = "identity", adjust = .8) +
+      guides(color = FALSE, fill = FALSE) +
+      scale_x_continuous(expand = c(0, 0)) + 
+      coord_cartesian(ylim = c(0, 1.05), xlim = range(data[[quant_1]])) +
+      common_theme
+    if (flip) out <- out + coord_flip(ylim = c(0, 1.05), xlim = range(data[[quant_1]]))
+    get_ggplot2_part(out, "panel")
+    }
+  x_density <- density_plot(quant_1, cat_1)
+  y_density <- density_plot(quant_2, cat_1, flip = TRUE)
   # Main scatter plot ------------------------------------------------------------------------------
-  xy_scatter <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
-    geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = summarized, aes_string(x = var, y = "rich", group = 1), method = lm) +
-    stat_density2d(alpha = .01, aes_string(fill = "site", color = NULL), geom="polygon", n = 100, bins=100) +
+  xy_scatter <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = cat_1)) +
+    #     geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = summarized, aes_string(x = quant_1, y = quant_2, group = 1), method = lm) +
+    stat_density2d(data = data, alpha = .05, aes_string(fill = cat_1, color = NULL), geom="polygon", n = 100, bins=10) +
     geom_point(alpha = .4) +
-    geom_point(data = summarized, aes_string(x = var, y = "rich", color = "site", size = 15)) +
-    geom_errorbar(data = summarized, aes_string(x = var, y = "rich", ymin = "rich_low", ymax = "rich_high", width = 0, size = 4)) +
-    geom_errorbarh(data = summarized, aes_string(x = var, y = "rich", xmin = paste0(var, "_low"), xmax = paste0(var, "_high"), height = 0, size = 4)) +
+    geom_point(data = means, aes_string(x = quant_1, y = quant_2, color = cat_1, size = 12)) +
+    geom_errorbar(data = quant_2_ci, aes_string(x = quant_1, y = quant_2, ymin = "low", ymax = "high", width = 0, size = 4)) +
+    geom_errorbarh(data = quant_1_ci, aes_string(x = quant_1, y = quant_2, xmin = "low", xmax = "high", height = 0, size = 4)) +
     guides(color = FALSE, site = FALSE, fill = FALSE, size = FALSE) +
-    labs(x = x_label, 
-         y = y_label) +
+    labs(x = x_label, y = y_label) +
     scale_x_continuous(expand = c(1, 0)) +
     scale_y_continuous(expand = c(1, 0)) +
-    coord_cartesian(ylim=range(data$rich), xlim = range(data[[var]])) +
-    theme(panel.grid = element_blank(), 
-          plot.margin = unit(c(0,0,0,0), "cm"), 
-          panel.margin = unit(c(0, 0, 0, 0), "cm"),
-          panel.background = element_blank())
+    coord_cartesian(ylim=range(data$rich), xlim = range(data[[quant_1]])) +
+    common_theme
   xy_scatter_panel <- get_ggplot2_part(xy_scatter, "panel")
   xy_scatter_axis_l <- get_ggplot2_part(xy_scatter, "axis-l")
   xy_scatter_axis_b <- get_ggplot2_part(xy_scatter, "axis-b")
   xy_scatter_xlab <- get_ggplot2_part(xy_scatter, "xlab")
   xy_scatter_ylab <- get_ggplot2_part(xy_scatter, "ylab")
-
-  # Y density plots --------------------------------------------------------------------------------
-  y_density <- ggplot(data, aes_string(x = "rich", color = "site", fill = "site", y='..scaled..')) +
-  geom_density(alpha = .2, position = "identity", adjust = .8) +
-  scale_x_continuous(expand = c(0, 0)) +
-  coord_flip(ylim = c(0, 1.05), xlim = range(data$rich)) +
-  guides(color = FALSE, fill = FALSE) +
-  theme(panel.grid = element_blank(), 
-        axis.ticks = element_blank(), 
-        axis.text  = element_blank(), 
-        axis.title = element_blank(),
-        axis.line = element_blank(),
-        plot.margin = unit(c(0, 0, 0, 0), "cm"),
-        panel.margin = unit(c(0, 0, 0, 0), "cm"),
-        legend.margin = unit(0, "cm"),
-        axis.ticks.margin = unit(0, "cm"),
-        panel.background = element_blank())
-  y_density <- get_ggplot2_part(y_density, "panel")
-#   upViewport()
-#   vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
-#   pushViewport(vp_up)
-#   p1 <- ggplot(data, aes_string(x = var, y = "rich", color = "site")) +
-#     geom_point() +
-#     geom_smooth(method = lm) +
-#     facet_wrap( ~ site, scales = "free", nrow = 1) +
-#     guides(color = FALSE) +
-#     labs(title = title) +
-#     scale_x_continuous(expand = c(0, 0)) +
-#     theme(panel.grid = element_blank(), 
-#           axis.ticks = element_blank(), 
-#           axis.text  = element_blank(), 
-#           axis.title = element_blank(), 
-#           plot.margin = unit(c(0, 0, 0, .7), "cm"), 
-#           panel.margin = unit(0, "cm"))
-#   print(p1, newpage = FALSE)
-
-# Graph plots in grid ----------------------------------------------------------------------------
-grid.newpage()
-pushViewport(viewport(layout=grid.layout(nrow = 4, ncol = 4,
-                                         widths = unit(c(0.05, 0.05, 0.7, 0.2), "null"),
-                                         heights = unit(c(0.2, 0.7, 0.05, 0.05), "null"))))
-draw_plot <- function(row, col, my_plot) {
-  pushViewport(viewport(layout.pos.col = col, layout.pos.row = row))
-  #    grid.rect()
-  #     print(my_plot, newpage = FALSE)
-  grid.draw(my_plot)
-  upViewport()
+  #   upViewport()
+  #   vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
+  #   pushViewport(vp_up)
+  #   p1 <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = "site")) +
+  #     geom_point() +
+  #     gcqq_scattereom_smooth(method = lm) +
+  #     facet_wrap( ~ site, scales = "free", nrow = 1) +
+  #     guides(color = FALSE) +
+  #     labs(title = title) +
+  #     scale_x_continuous(expand = c(0, 0)) +
+  #     theme(panel.grid = element_blank(), 
+  #           axis.ticks = element_blank(), 
+  #           axis.text  = element_blank(), 
+  #           axis.title = element_blank(), 
+  #           plot.margin = unit(c(0, 0, 0, .7), "cm"), 
+  #           panel.margin = unit(0, "cm"))
+  #   print(p1, newpage = FALSE)
+  
+  # Graph plots in grid ----------------------------------------------------------------------------
+  grid.newpage()
+  pushViewport(viewport(layout=grid.layout(nrow = 4, ncol = 4,
+                                           widths = unit(c(0.05, 0.05, 0.7, 0.2), "null"),
+                                           heights = unit(c(0.2, 0.7, 0.05, 0.05), "null"))))
+  draw_plot <- function(row, col, my_plot) {
+    pushViewport(viewport(layout.pos.col = col, layout.pos.row = row))
+    #    grid.rect()
+    #     print(my_plot, newpage = FALSE)
+    grid.draw(my_plot)
+    upViewport()
+    }
+  draw_plot(1, 3, x_density)
+  draw_plot(2, 1, xy_scatter_ylab)
+  draw_plot(2, 2, xy_scatter_axis_l)
+  draw_plot(2, 3, xy_scatter_panel)
+  draw_plot(2, 4, y_density)
+  draw_plot(3, 3, xy_scatter_axis_b)
+  draw_plot(4, 3, xy_scatter_xlab)
   }
-draw_plot(1, 3, x_density)
-draw_plot(2, 1, xy_scatter_ylab)
-draw_plot(2, 2, xy_scatter_axis_l)
-draw_plot(2, 3, xy_scatter_panel)
-draw_plot(2, 4, y_density)
-draw_plot(3, 3, xy_scatter_axis_b)
-draw_plot(4, 3, xy_scatter_xlab)
-}
-summary_graph(data_1, landscape_1, 
-              "Relationship between productivity and species richness in data set 1",
-              "Gross primary productivity", "Bird richness", "gpp")
+cqq_scatter(data_1, "site", "gpp", "rich", 
+            title = "Relationship between productivity and species richness in data set 1",
+            x_label = "Gross primary productivity",
+            y_label = "Bird richness")
 ```
 
 ```{r, echo=FALSE, fig.height = 5}
-summary_graph(data_1, landscape_1, 
-              "Relationship between complexity and species richness in data set 1",
-              "Normalized difference vegetation index", "Bird richness", "ndvi")
+cqq_scatter(data_1, landscape_1, 
+            "Relationship between complexity and species richness in data set 1",
+            "Normalized difference vegetation index", "Bird richness", "ndvi")
 ```
 
 
@@ -162,8 +158,8 @@ Data set 2
 ==========
 
 ```{r, echo=FALSE, fig.height = 5}
-summary_graph(data_2, landscape_2, 
-              "Relationship between complexity and species richness in data set 2",
-              "Structural complexity index", "Bird richness", "sci")
+cqq_scatter(data_2, landscape_2, 
+            "Relationship between complexity and species richness in data set 2",
+            "Structural complexity index", "Bird richness", "sci")
 ```
 
