@@ -14,7 +14,7 @@ library(gridExtra)
 library(plyr)
 library(scales)
 library(boot)
-opts_chunk$set(fig.width = 8, fig.height = 5, message = FALSE, warning = FALSE, echo = FALSE)
+opts_chunk$set(fig.width = 7, fig.height = 5, message = FALSE, warning = FALSE, echo = FALSE)
 ```
 
 
@@ -27,8 +27,10 @@ Data set 1
 # prepare data
 data_1 <- read.table("birddata1.txt", header = TRUE)
 data_2 <- read.table("birddata2.txt", header = TRUE)
-data_1$site <- as.factor(paste("Site", data_1$site))
-data_2$site <- as.factor(paste("Site", data_2$site))
+data_1$site <- paste("Site", data_1$site)
+data_2$site <- paste("Site", data_2$site)
+data_1$site <- factor(data_1$site, ordered = TRUE, levels = rev(data_1$site))
+data_2$site <- factor(data_2$site, ordered = TRUE, levels =  c("Site 5", "Site 3", "Site 2"))
 ```
 
 ```{r}
@@ -48,13 +50,23 @@ landscape_2 <- site_summary(data_2)
 
 ```{r, echo=FALSE, fig.height = 5}
 cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quote(quant_1),
-                         y_label = quote(quant_2)) {
+                        y_label = quote(quant_2)) {
   data[[cat_1]] <- as.factor(data[[cat_1]])
   get_ggplot2_part <- function(my_plot, part) {
     my_build <- ggplot_build(my_plot)
     my_table <- ggplot_gtable(my_build)
     tmp <- subset(my_table$layout, name == part)
     my_table[tmp$t:tmp$b, tmp$l:tmp$r]
+    }
+  lm_eqn <- function(x, y) {
+    m = lm(y ~ x);
+    s = summary(m)
+    eq <- substitute(atop(italic(y) == a + b*italic(x), italic(r)^2~"="~r2*","~~italic(p)~"="~pv), 
+                     list(a = format(coef(m)[1], digits = 2), 
+                          b = format(coef(m)[2], digits = 2), 
+                          r2 = format(summary(m)$r.squared, digits = 2),
+                          pv = format(s$coefficients[2, 4], digits = 2)))
+    as.character(as.expression(eq));                 
     }
   common_theme <- theme(panel.grid = element_blank(),
                         plot.margin = unit(c(0, 0, 0, 0), "cm"),
@@ -87,12 +99,17 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
   y_density <- density_plot(quant_2, cat_1, flip = TRUE)
   # Main scatter plot ------------------------------------------------------------------------------
   xy_scatter <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = cat_1)) +
-    #     geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = summarized, aes_string(x = quant_1, y = quant_2, group = 1), method = lm) +
+    geom_smooth(color = "#000000", fill = "#FFFFFFFF", data = means, aes_string(x = quant_1, y = quant_2, group = 1), method = lm) +
     stat_density2d(data = data, alpha = .05, aes_string(fill = cat_1, color = NULL), geom="polygon", n = 100, bins=10) +
-    geom_point(alpha = .4) +
-    geom_point(data = means, aes_string(x = quant_1, y = quant_2, color = cat_1, size = 12)) +
-    geom_errorbar(data = quant_2_ci, aes_string(x = quant_1, y = quant_2, ymin = "low", ymax = "high", width = 0, size = 4)) +
-    geom_errorbarh(data = quant_1_ci, aes_string(x = quant_1, y = quant_2, xmin = "low", xmax = "high", height = 0, size = 4)) +
+    geom_point(alpha = .4, size = 2) +
+    geom_point(data = means, aes_string(x = quant_1, y = quant_2, color = cat_1), size = 3) +
+    geom_errorbar(data = quant_2_ci, aes_string(x = quant_1, y = quant_2, ymin = "low", ymax = "high", width = 0), size = 2) +
+    geom_errorbarh(data = quant_1_ci, aes_string(x = quant_1, y = quant_2, xmin = "low", xmax = "high", height = 0), size = 2) +
+    annotate("text", x = mean(range(data[[quant_1]])),
+             y = max(data[[quant_2]])*.8,
+             label = lm_eqn(means[[quant_1]], means[[quant_2]]),
+             alpha = .7, 
+             parse = TRUE) +
     guides(color = FALSE, site = FALSE, fill = FALSE, size = FALSE) +
     labs(x = x_label, y = y_label) +
     scale_x_continuous(expand = c(1, 0)) +
@@ -104,29 +121,30 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
   xy_scatter_axis_b <- get_ggplot2_part(xy_scatter, "axis-b")
   xy_scatter_xlab <- get_ggplot2_part(xy_scatter, "xlab")
   xy_scatter_ylab <- get_ggplot2_part(xy_scatter, "ylab")
-  #   upViewport()
-  #   vp_up <- viewport(x = .5, y = 1, width = 1, height = .3, just = "top")
-  #   pushViewport(vp_up)
-  #   p1 <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = "site")) +
-  #     geom_point() +
-  #     gcqq_scattereom_smooth(method = lm) +
-  #     facet_wrap( ~ site, scales = "free", nrow = 1) +
-  #     guides(color = FALSE) +
-  #     labs(title = title) +
-  #     scale_x_continuous(expand = c(0, 0)) +
-  #     theme(panel.grid = element_blank(), 
-  #           axis.ticks = element_blank(), 
-  #           axis.text  = element_blank(), 
-  #           axis.title = element_blank(), 
-  #           plot.margin = unit(c(0, 0, 0, .7), "cm"), 
-  #           panel.margin = unit(0, "cm"))
-  #   print(p1, newpage = FALSE)
+  # individual scatter plots -----------------------------------------------------------------------
+#   browser()
+  plot_text <- cbind(ddply(data, "site", function(x) lm_eqn(x[[quant_1]], x[[quant_2]])),
+                     ddply(data, "site", function(x) mean(range(x[[quant_1]])))[2],
+                     ddply(data, "site", function(x) mean(c(mean(range(x[[quant_2]])), max(x[[quant_2]]))))[2])
+  names(plot_text) <- c("site","text", "x", "y")
+  plot_text$site <- factor(plot_text$site, ordered = TRUE, levels = levels(data$site)) #makes same order as in data
+  small_scatters <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = "site")) +
+    geom_point() +
+    geom_smooth(method = lm) +
+    geom_text(data = plot_text, aes(x = x, y = y, label = text), color = "#444444",  parse = TRUE, size = 3, alpha = .7) +
+    facet_wrap( ~ site, scales = "free", nrow = 1) +
+    guides(color = FALSE) +
+    labs(title = title) +
+    scale_x_continuous(expand = c(0, 0)) +
+    theme(panel.grid = element_blank(), 
+          axis.ticks = element_blank(), 
+          axis.text  = element_blank(), 
+          axis.title = element_blank(), 
+          plot.margin = unit(c(0, .3, 0, -.1), "cm"), 
+          panel.margin = unit(0, "cm"))
+  small_scatters <- ggplot_gtable(ggplot_build(small_scatters))
   
   # Graph plots in grid ----------------------------------------------------------------------------
-  grid.newpage()
-  pushViewport(viewport(layout=grid.layout(nrow = 4, ncol = 4,
-                                           widths = unit(c(0.05, 0.05, 0.7, 0.2), "null"),
-                                           heights = unit(c(0.2, 0.7, 0.05, 0.05), "null"))))
   draw_plot <- function(row, col, my_plot) {
     pushViewport(viewport(layout.pos.col = col, layout.pos.row = row))
     #    grid.rect()
@@ -134,6 +152,15 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
     grid.draw(my_plot)
     upViewport()
     }
+  grid.newpage()
+  pushViewport(viewport(layout=grid.layout(nrow = 2, ncol = 1,
+                                           widths = unit(c(1), "null"),
+                                           heights = unit(c(0.3, 0.7), "null"))))
+  draw_plot(1, 1, small_scatters)
+  pushViewport(viewport(layout.pos.col = 1, layout.pos.row = 2))
+  pushViewport(viewport(layout=grid.layout(nrow = 4, ncol = 4,
+                                           widths = unit(c(0.03, 0.03, 0.8, 0.16), "null"),
+                                           heights = unit(c(0.2, 0.68, 0.06, 0.06), "null"))))
   draw_plot(1, 3, x_density)
   draw_plot(2, 1, xy_scatter_ylab)
   draw_plot(2, 2, xy_scatter_axis_l)
