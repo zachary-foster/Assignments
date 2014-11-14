@@ -122,26 +122,27 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
   xy_scatter_xlab <- get_ggplot2_part(xy_scatter, "xlab")
   xy_scatter_ylab <- get_ggplot2_part(xy_scatter, "ylab")
   # individual scatter plots -----------------------------------------------------------------------
-#   browser()
   plot_text <- cbind(ddply(data, "site", function(x) lm_eqn(x[[quant_1]], x[[quant_2]])),
                      ddply(data, "site", function(x) mean(range(x[[quant_1]])))[2],
                      ddply(data, "site", function(x) mean(c(mean(range(x[[quant_2]])), max(x[[quant_2]]))))[2])
   names(plot_text) <- c("site","text", "x", "y")
   plot_text$site <- factor(plot_text$site, ordered = TRUE, levels = levels(data$site)) #makes same order as in data
   small_scatters <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = "site")) +
+    geom_smooth(method = lm, fill = "#FFFFFFFF") +
     geom_point() +
-    geom_smooth(method = lm) +
-    geom_text(data = plot_text, aes(x = x, y = y, label = text), color = "#444444",  parse = TRUE, size = 3, alpha = .7) +
+    geom_text(data = plot_text, aes(x = x, y = y, label = text), color = "#444444",  parse = TRUE, size = 3, fontface = "bold") +
     facet_wrap( ~ site, scales = "free", nrow = 1) +
     guides(color = FALSE) +
     labs(title = title) +
-    scale_x_continuous(expand = c(0, 0)) +
+    scale_x_continuous(expand = c(.03, 0)) +
     theme(panel.grid = element_blank(), 
           axis.ticks = element_blank(), 
           axis.text  = element_blank(), 
           axis.title = element_blank(), 
           plot.margin = unit(c(0, .3, 0, -.1), "cm"), 
-          panel.margin = unit(0, "cm"))
+          panel.margin = unit(0, "cm"),
+          panel.background = element_blank(),
+          strip.background = element_blank())
   small_scatters <- ggplot_gtable(ggplot_build(small_scatters))
   
   # Graph plots in grid ----------------------------------------------------------------------------
