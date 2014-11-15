@@ -115,6 +115,7 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
     scale_x_continuous(expand = c(1, 0)) +
     scale_y_continuous(expand = c(1, 0)) +
     coord_cartesian(ylim=range(data$rich), xlim = range(data[[quant_1]])) +
+    theme(axis.title = element_text(size = rel(1.3))) +
     common_theme
   xy_scatter_panel <- get_ggplot2_part(xy_scatter, "panel")
   xy_scatter_axis_l <- get_ggplot2_part(xy_scatter, "axis-l")
@@ -126,11 +127,11 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
                      ddply(data, "site", function(x) mean(range(x[[quant_1]])))[2],
                      ddply(data, "site", function(x) mean(c(mean(range(x[[quant_2]])), max(x[[quant_2]]))))[2])
   names(plot_text) <- c("site","text", "x", "y")
-  plot_text$site <- factor(plot_text$site, ordered = TRUE, levels = levels(data$site)) #makes same order as in data
+  plot_text$site <- factor(plot_text$site, ordered = TRUE, levels = levels(unique(data$site))) #makes same order as in data
   small_scatters <- ggplot(data, aes_string(x = quant_1, y = quant_2, color = "site")) +
     geom_smooth(method = lm, fill = "#FFFFFFFF") +
     geom_point() +
-    geom_text(data = plot_text, aes(x = x, y = y, label = text), color = "#444444",  parse = TRUE, size = 3, fontface = "bold") +
+    geom_text(data = plot_text, aes(x = x, y = y, label = text), color = "#444444",  parse = TRUE, size = 5, fontface = "bold") +
     facet_wrap( ~ site, scales = "free", nrow = 1) +
     guides(color = FALSE) +
     labs(title = title) +
@@ -142,7 +143,9 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
           plot.margin = unit(c(0, .3, 0, -.1), "cm"), 
           panel.margin = unit(0, "cm"),
           panel.background = element_blank(),
-          strip.background = element_blank())
+          strip.background = element_blank(), 
+          strip.text = element_text(size = rel(1.3)),
+          title = element_text(size = rel(1.4)))
   small_scatters <- ggplot_gtable(ggplot_build(small_scatters))
   
   # Graph plots in grid ----------------------------------------------------------------------------
@@ -160,7 +163,7 @@ cqq_scatter <- function(data, cat_1, quant_1, quant_2, title = "", x_label = quo
   draw_plot(1, 1, small_scatters)
   pushViewport(viewport(layout.pos.col = 1, layout.pos.row = 2))
   pushViewport(viewport(layout=grid.layout(nrow = 4, ncol = 4,
-                                           widths = unit(c(0.03, 0.03, 0.8, 0.16), "null"),
+                                           widths = unit(c(0.03, 0.03, 0.82, 0.14), "null"),
                                            heights = unit(c(0.2, 0.68, 0.06, 0.06), "null"))))
   draw_plot(1, 3, x_density)
   draw_plot(2, 1, xy_scatter_ylab)
