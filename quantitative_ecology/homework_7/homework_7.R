@@ -41,7 +41,7 @@ mspe <- function(observed, predicted) { # calculates mean square prediction erro
   sum((observed - predicted)^2) / (length(observed))
 }
 r2 <- function(observed, predicted, original_mean) { # calculates R-squared
-   1 - sum((observed - predicted)^2) / sum((observed - original_mean)^2)
+   1 - sum((observed - predicted)^2) / sum((observed - mean(observed))^2)
 }
 #ddply takes a data.frame, splits it based on the value of a factor, applies a function to each peice, and combines the results into a new data.frame
 stats <- cbind(ddply(data, "data_set", function(x) mse(x$SECMEAN, x$predicted, 4)), 
@@ -71,4 +71,21 @@ scatter_plot <- ggplot(data, aes(x = predicted, y = SECMEAN)) +
   theme_classic(base_size = 20) # sets theme and base text size
 png(filename = "scatter.png", width = 1000, height = 350) # prepares for png output 
 print(scatter_plot)
+dev.off() #saves file and turns off png output
+
+# Compare distribtuions of exp vars ----------------------------------------------------------------
+dist_data <- data[, c("AG.TOT", "AV.DEP", "LOG.TOT.RD", "data_set", "SECMEAN")]
+dist_data$AG.TOT <- log(dist_data$AG.TOT + 1)
+names(dist_data) <- c("ln(AG.TOT)", "AV.DEP", "LOG.TOT.RD", "data_set", "SECMEAN")
+dist_data <- melt(dist_data, id.vars = "data_set")
+
+dist_plot <- ggplot(dist_data, aes(x = value, color = data_set)) +
+  geom_density() +
+  facet_wrap( ~ variable, scales = "free") +
+  labs(x = "Value", y = "", color = "Variable", title = "Distribution of variables in model in the three data sets") +
+  theme_classic(base_size = 20) +
+  theme(axis.text.y = element_blank(), 
+        axis.ticks.y =  element_blank())
+png(filename = "dsit.png", width = 1000, height = 500) # prepares for png output 
+print(dist_plot)
 dev.off() #saves file and turns off png output
