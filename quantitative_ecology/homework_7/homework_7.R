@@ -41,7 +41,7 @@ mspe <- function(observed, predicted) { # calculates mean square prediction erro
   sum((observed - predicted)^2) / (length(observed))
 }
 r2 <- function(observed, predicted, original_mean) { # calculates R-squared
-  sum((observed - predicted)^2) / sum((observed - original_mean)^2)
+   1 - sum((observed - predicted)^2) / sum((observed - original_mean)^2)
 }
 #ddply takes a data.frame, splits it based on the value of a factor, applies a function to each peice, and combines the results into a new data.frame
 stats <- cbind(ddply(data, "data_set", function(x) mse(x$SECMEAN, x$predicted, 4)), 
