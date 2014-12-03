@@ -29,7 +29,7 @@ data <- data[ , !(names(data) %in% c("LAT", "LON"))]
 ```{r}
 count <- 100000
 get_median <- function(data, index) median(data[index])
-boot_info <- boot(data$LK.HA, get_median, n)
+boot_info <- boot(data$LK.HA, get_median, count)
 boot_info
 original_median <- median(data$LK.HA)
 boot_median <- mean(boot_info$t)
