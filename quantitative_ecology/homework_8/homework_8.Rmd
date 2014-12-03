@@ -1,0 +1,68 @@
+---
+title: "Homework 8"
+author: "Zachary Foster"
+date: "12/02/2014"
+output: pdf_document
+---
+
+```{r}
+library(boot)
+library(ggplot2)
+library(plyr)
+library(reshape2)
+```
+
+
+```{r}
+# Read input data --------------------------------------------------------------
+data <- read.table("emap.build08.txt", header = TRUE)
+data <- data[ , !(names(data) %in% c("LAT", "LON"))]
+# # Log varaibles ----------------------------------------------------------------
+# vars_to_log <- c("LK.HA", "POPDENKM", "TOT.RD")
+# data[vars_to_log] <- lapply(data[vars_to_log], function(x) log(x + 1))
+# names(data) <- ifelse(names(data) %in% vars_to_log,
+#                       paste("LOG", names(data), sep = "."), 
+#                       names(data))
+```
+
+
+```{r}
+count <- 100000
+get_median <- function(data, index) median(data[index])
+boot_info <- boot(data$LK.HA, get_median, n)
+boot_info
+original_median <- median(data$LK.HA)
+boot_median <- mean(boot_info$t)
+boot_bias <- boot_median - original_median
+```
+
+The original median is `r original_median` and the mean median of `r count` bootstrap replicates is `r boot_median`, indicating a bias of `r boot_bias`. 
+
+```{r fig.height=5, fig.width=8}
+graph_data <- data.frame(median = boot_info$t)
+vline_data <- data.frame(label = c("Original", "Bootstrapped"),
+                         value = c(original_median, boot_median))
+ggplot(graph_data, aes(x = median)) +
+  geom_histogram(binwidth = 1) +
+  geom_vline(data = vline_data,
+             aes(xintercept = value, color = label),
+             show_guide = TRUE) +
+  labs(title = "Median lake area for 100,000 bootstrap replicates", 
+       x = "Median of bootstrapped sample", 
+       y = "Count", 
+       color = "Overall median") +
+  theme_classic()
+```
+
+
+```{r}
+boot.ci(boot_info, type = c("perc", "bca"))
+```
+
+```{r}
+log_lake_area <- log(data$LK.HA + 1)
+error <- qnorm(0.975)*sd(log_lake_area)/sqrt(length(log_lake_area))
+ci <-  c(mean(log_lake_area) - error, mean(log_lake_area) + error)
+exp(1)^ci - 1
+```
+
