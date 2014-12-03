@@ -8,23 +8,24 @@ output: pdf_document
 ```{r}
 library(boot)
 library(ggplot2)
-library(plyr)
-library(reshape2)
-```
-
-
-```{r}
-# Read input data --------------------------------------------------------------
 data <- read.table("emap.build08.txt", header = TRUE)
 data <- data[ , !(names(data) %in% c("LAT", "LON"))]
-# # Log varaibles ----------------------------------------------------------------
-# vars_to_log <- c("LK.HA", "POPDENKM", "TOT.RD")
-# data[vars_to_log] <- lapply(data[vars_to_log], function(x) log(x + 1))
-# names(data) <- ifelse(names(data) %in% vars_to_log,
-#                       paste("LOG", names(data), sep = "."), 
-#                       names(data))
 ```
 
+The distribution of lake area is highly skewed and irregular (Fig. 1). 
+
+```{r, anchor="distribution"}
+ggplot(data, aes(x = LK.HA)) + 
+  geom_density() +
+  labs(title = paste0("Figure 1: Distribution of lake area"), 
+       x = "Lake area (hectares)", 
+       y = "") +
+  theme_classic() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+```
+
+To test the effect this distribution has on the variance of median estimates, I generated a distribution of 100,000 bootstrapped medians.
 
 ```{r}
 count <- 100000
@@ -36,7 +37,7 @@ boot_median <- mean(boot_info$t)
 boot_bias <- boot_median - original_median
 ```
 
-The original median is `r original_median` and the mean median of `r count` bootstrap replicates is `r boot_median`, indicating a bias of `r boot_bias`. 
+The original median is `r original_median` and the mean median of `r count` bootstrap replicates is `r boot_median`, indicating a bias of `r boot_bias` (fig 2). 
 
 ```{r fig.height=5, fig.width=8}
 graph_data <- data.frame(median = boot_info$t)
@@ -47,22 +48,44 @@ ggplot(graph_data, aes(x = median)) +
   geom_vline(data = vline_data,
              aes(xintercept = value, color = label),
              show_guide = TRUE) +
-  labs(title = "Median lake area for 100,000 bootstrap replicates", 
+  labs(title = "Figure 2: Median lake area for 100,000 bootstrap replicates", 
        x = "Median of bootstrapped sample", 
        y = "Count", 
        color = "Overall median") +
   theme_classic()
 ```
 
+Next, I calculated a 95% confidence interval using two techniques: the percentile method and the bias-corrected and accelerated (BCa) bootstrap. 
 
 ```{r}
 boot.ci(boot_info, type = c("perc", "bca"))
 ```
+
+The BCa method produced a slightly smaller interval. 
+This is probably because BCa corrects for bias and skew, making for a more conservative confidence interval. 
+Another method of calculating a confidence interval is to calculate the confidence interval for the mean of logged values and back-transform the resulting limits. 
 
 ```{r}
 log_lake_area <- log(data$LK.HA + 1)
 error <- qnorm(0.975)*sd(log_lake_area)/sqrt(length(log_lake_area))
 ci <-  c(mean(log_lake_area) - error, mean(log_lake_area) + error)
 exp(1)^ci - 1
+```
+
+This results in a higher limits. 
+One of the assumptions of this method is that the logged distribution is symmetrical. 
+Although the logged distribution is much more symmetrical than the original one, it is still significantly skewed (Fig. 3). 
+This could explain the disagreement between the results of this and the bootstrap methods.
+
+```{r}
+data$LK.HA <- log(data$LK.HA + 1)
+ggplot(data, aes(x = LK.HA)) + 
+  geom_density() +
+  labs(title = paste0("Figure 3: Distribution of ln(lake area + 1)"), 
+       x = "ln(Lake area + 1)", 
+       y = "") +
+  theme_classic() +
+  theme(axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
 ```
 
