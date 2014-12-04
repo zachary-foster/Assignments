@@ -9,12 +9,11 @@ output: pdf_document
 library(boot)
 library(ggplot2)
 data <- read.table("emap.build08.txt", header = TRUE)
-data <- data[ , !(names(data) %in% c("LAT", "LON"))]
 ```
 
-The distribution of lake area is highly skewed and irregular (Fig. 1). 
+The distribution of lake area is highly skewed and irregular (Fig. 1), with many small lakes and a few very large lakes. 
 
-```{r, anchor="distribution"}
+```{r, fig.height=3.3, fig.width=8}
 ggplot(data, aes(x = LK.HA)) + 
   geom_density() +
   labs(title = paste0("Figure 1: Distribution of lake area"), 
@@ -28,7 +27,7 @@ ggplot(data, aes(x = LK.HA)) +
 To test the effect this distribution has on the variance of median estimates, I generated a distribution of 100,000 bootstrapped medians.
 
 ```{r}
-count <- 100000
+count <- 1000
 get_median <- function(data, index) median(data[index])
 boot_info <- boot(data$LK.HA, get_median, count)
 boot_info
@@ -37,9 +36,9 @@ boot_median <- mean(boot_info$t)
 boot_bias <- boot_median - original_median
 ```
 
-The original median is `r original_median` and the mean median of `r count` bootstrap replicates is `r boot_median`, indicating a bias of `r boot_bias` (fig 2). 
+The original median is `r original_median` and the mean median of 100,000 bootstrap replicates is `r boot_median`, indicating a bias of `r boot_bias` (fig 2). 
 
-```{r fig.height=5, fig.width=8}
+```{r fig.height=3.3, fig.width=8}
 graph_data <- data.frame(median = boot_info$t)
 vline_data <- data.frame(label = c("Original", "Bootstrapped"),
                          value = c(original_median, boot_median))
@@ -63,7 +62,7 @@ boot.ci(boot_info, type = c("perc", "bca"))
 
 The BCa method produced a slightly smaller interval. 
 This is probably because BCa corrects for bias and skew, making for a more conservative confidence interval. 
-Another method of calculating a confidence interval is to calculate the confidence interval for the mean of logged values and back-transform the resulting limits. 
+Another method of calculating a confidence interval of the median is to calculate the confidence interval for the mean of logged values and back-transform the resulting limits. 
 
 ```{r}
 log_lake_area <- log(data$LK.HA + 1)
@@ -72,12 +71,12 @@ ci <-  c(mean(log_lake_area) - error, mean(log_lake_area) + error)
 exp(1)^ci - 1
 ```
 
-This results in a higher limits. 
+This results in higher limits. 
 One of the assumptions of this method is that the logged distribution is symmetrical. 
-Although the logged distribution is much more symmetrical than the original one, it is still significantly skewed (Fig. 3). 
+Although the logged distribution is much more symmetrical than the original one (Fig. 2), it is still significantly skewed (Fig. 3). 
 This could explain the disagreement between the results of this and the bootstrap methods.
 
-```{r}
+```{r fig.height=3.3, fig.width=8}
 data$LK.HA <- log(data$LK.HA + 1)
 ggplot(data, aes(x = LK.HA)) + 
   geom_density() +
